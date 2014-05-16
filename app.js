@@ -1,6 +1,8 @@
+var https = require('https');
 var express = require('express');
 var bodyParser = require('body-parser');
 
+var keys = require('./keys');
 var makes = require('./makes');
 var blitline = require('./blitline');
 
@@ -26,7 +28,7 @@ app.post('/', function(req, res, next) {
     return res.send(400, {error: 'URL must be a Webmaker make.'});
 
   makes.verifyIsHtml(url, function(err, isHtml) {
-    var key = makes.keyForUrl(url);
+    var key = keys.fromMakeUrl(url);
 
     if (err) return next(err);
     if (!isHtml)
@@ -43,6 +45,40 @@ app.post('/', function(req, res, next) {
       return res.send({screenshot: S3_WEBSITE + key});
     });
   });
+});
+
+app.use(function(req, res, next) {
+  var key = req.url.slice(1);
+  if (!(req.method == 'GET' && keys.isWellFormed(key)))
+    return next();
+
+  var s3url = S3_WEBSITE + key;
+
+  // TODO: Consider using a HEAD request instead.
+  https.get(s3url, function(s3res) {
+    s3res.socket.destroy();
+    if (s3res.statusCode == 200)
+      return res.redirect(s3url);
+
+    var makeUrl = 'https://' + key;
+
+    makes.verifyIsHtml(makeUrl, function(err, isHtml) {
+      if (err) return next(err);
+      if (!isHtml) return next();
+
+      blitline.screenshot({
+        appId: BLITLINE_APPLICATION_ID,
+        url: makeUrl,
+        s3: {
+          bucket: S3_BUCKET,
+          key: key
+        }
+      }, function(err) {
+        if (err) return next(err);
+        return res.redirect(s3url);
+      });
+    });
+  }).on('error', next);
 });
 
 app.use(express.static(__dirname + '/static'));

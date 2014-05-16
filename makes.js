@@ -1,5 +1,4 @@
 var https = require('https');
-var urlParse = require('url').parse;
 
 var MAKES_URL_RE = /^https:\/\/[A-Za-z0-9_\-]+\.makes\.org\//;
 var ENDS_WITH_UNDERSCORE_RE = /_$/;
@@ -11,13 +10,6 @@ function validateAndNormalizeUrl(url) {
     url += '_';
 
   return url;
-}
-
-function keyForUrl(url) {
-  var parsed = urlParse(url);
-  var key = parsed.hostname + parsed.pathname.slice(0, -1) + '.jpg';
-
-  return key;
 }
 
 // TODO: Consider using a HEAD request instead.
@@ -33,5 +25,4 @@ function verifyIsHtml(url, cb) {
 }
 
 exports.validateAndNormalizeUrl = validateAndNormalizeUrl;
-exports.keyForUrl = keyForUrl;
 exports.verifyIsHtml = verifyIsHtml;
