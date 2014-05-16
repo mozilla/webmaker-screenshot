@@ -32,7 +32,7 @@ function screenshot(options, cb) {
           },
           save: {
             quality: 90,
-            image_identifier: 'screenshot',
+            image_identifier: 'screenshot:' + options.s3.key,
             s3_destination: options.s3
           }
         }]
