@@ -26,6 +26,7 @@ app.post('/', function(req, res) {
   if (!ENDS_WITH_UNDERSCORE_RE.test(url))
     url += '_';
 
+  // TODO: Consider using a HEAD request instead.
   https.get(url, function(makeRes) {
     if (makeRes.statusCode != 200)
       return res.send(400, {error: 'URL does not exist.'});
