@@ -24,8 +24,8 @@ form.addEventListener('submit', function(event) {
       alert(err.message);
       return;
     }
-    var img = new Image(screenshot.width, screenshot.height);
-    img.src = screenshot.url;
+    var img = new Image();
+    img.src = screenshot;
     document.body.appendChild(img);
   });
 }, false);
