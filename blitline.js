@@ -31,7 +31,8 @@ function screenshot(options, cb) {
             width: THUMBNAIL_WIDTH
           },
           save: {
-            image_identifier: 'screenshot'
+            image_identifier: 'screenshot',
+            s3_destination: options.s3
           }
         }]
       }]
