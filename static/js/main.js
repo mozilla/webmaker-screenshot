@@ -9,6 +9,11 @@ form.addEventListener('submit', function(event) {
   req.responseType = 'json';
   req.addEventListener('load', function(event) {
     console.log('GOT', req.response);
+    var screenshot = req.response.screenshot;
+    if (!screenshot) return;
+    var img = new Image(screenshot.width, screenshot.height);
+    img.src = screenshot.url;
+    document.body.appendChild(img);
   }, false);
   req.send(JSON.stringify({url: form.elements.url.value}));
 }, false);
