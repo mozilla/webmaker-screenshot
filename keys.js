@@ -1,16 +1,16 @@
 var urlParse = require('url').parse;
 
-var WELL_FORMED_RE = /^[A-Za-z0-9_\-]+\.makes\.org\/.+\.jpg$/;
+var WELL_FORMED_RE = /^[A-Za-z0-9_\-]+\.makes\.org\/.+$/;
 
 function fromMakeUrl(url) {
   var parsed = urlParse(url);
-  var key = parsed.hostname + parsed.pathname.slice(0, -1) + '.jpg';
+  var key = parsed.hostname + parsed.pathname.slice(0, -1);
 
   return key;
 }
 
 function toMakeUrl(key) {
-  return 'https://' + key.slice(0, -4) + '_';
+  return 'https://' + key + '_';
 }
 
 function isWellFormed(key) {
