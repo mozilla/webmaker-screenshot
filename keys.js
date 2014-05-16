@@ -9,9 +9,14 @@ function fromMakeUrl(url) {
   return key;
 }
 
+function toMakeUrl(key) {
+  return 'https://' + key.slice(0, -4) + '_';
+}
+
 function isWellFormed(key) {
   return WELL_FORMED_RE.test(key);
 }
 
 exports.fromMakeUrl = fromMakeUrl;
+exports.toMakeUrl = toMakeUrl;
 exports.isWellFormed = isWellFormed;

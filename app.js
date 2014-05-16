@@ -59,7 +59,7 @@ app.use(function(req, res, next) {
     if (s3res.statusCode == 200)
       return res.redirect(s3url);
 
-    var makeUrl = 'https://' + key;
+    var makeUrl = keys.toMakeUrl(key);
 
     makes.verifyIsHtml(makeUrl, function(err, isHtml) {
       if (err) return next(err);
