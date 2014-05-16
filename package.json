@@ -4,7 +4,8 @@
   "description": "Take thumbnail screenshots of Webmaker makes.",
   "dependencies": {
     "body-parser": "~1.2.0",
-    "express": "~4.2.0"
+    "express": "~4.2.0",
+    "request": "2.34.0"
   },
   "devDependencies": {},
   "scripts": {
