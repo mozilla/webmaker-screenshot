@@ -1,4 +1,4 @@
-var https = require('https');
+var request = require('request');
 var express = require('express');
 var bodyParser = require('body-parser');
 
@@ -54,9 +54,8 @@ app.use(function(req, res, next) {
 
   var s3url = S3_WEBSITE + key;
 
-  // TODO: Consider using a HEAD request instead.
-  https.get(s3url, function(s3res) {
-    s3res.socket.destroy();
+  request.head(s3url, function(err, s3res) {
+    if (err) return next(err);
     if (s3res.statusCode == 200)
       return res.redirect(s3url);
 
@@ -78,7 +77,7 @@ app.use(function(req, res, next) {
         return res.redirect(s3url);
       });
     });
-  }).on('error', next);
+  });
 });
 
 app.use(express.static(__dirname + '/static'));
