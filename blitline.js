@@ -31,6 +31,7 @@ function screenshot(options, cb) {
             width: THUMBNAIL_WIDTH
           },
           save: {
+            quality: 90,
             image_identifier: 'screenshot',
             s3_destination: options.s3
           }
