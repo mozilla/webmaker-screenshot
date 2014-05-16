@@ -8,7 +8,6 @@ var MAKES_URL_RE = /^https:\/\/[A-Za-z0-9_\-]+\.makes\.org\//;
 var ENDS_WITH_UNDERSCORE_RE = /_$/;
 var PORT = process.env.PORT || 3000;
 var PHANTOMJS = process.env.PHANTOMJS || 'phantomjs';
-var COOKIE_SECRET = process.env.COOKIE_SECRET || 'meh';
 var BLITLINE_APPLICATION_ID = process.env.BLITLINE_APPLICATION_ID;
 
 var app = express();
