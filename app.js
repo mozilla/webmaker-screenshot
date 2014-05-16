@@ -22,7 +22,7 @@ var app = express();
 
 app.use(bodyParser.json());
 
-app.post('/', function(req, res) {
+app.post('/', function(req, res, next) {
   var url = req.body.url;
 
   if (!url)
