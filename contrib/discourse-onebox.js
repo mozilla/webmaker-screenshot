@@ -1,3 +1,11 @@
+// To make this work for your Discourse:
+//
+//   * Change BASE_SCREENSHOT_URL to the root of your web service.
+//   * Host this script somewhere.
+//   * In the Discourse admin panel, go to "Content", then
+//     "HTML head", and add a script tag to this script. Alternatively,
+//     just include this script inline.
+
 // Thanks to https://gist.github.com/leonardteo/8976640 for this pattern!
 Discourse.PostView.reopen({
   didInsertElement: function addScreenshotsToMakes() {
