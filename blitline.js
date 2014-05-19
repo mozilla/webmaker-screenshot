@@ -6,6 +6,10 @@ var THUMBNAIL_WIDTH = 320;
 var THUMBNAIL_HEIGHT = Math.floor(VIEWPORT_HEIGHT * THUMBNAIL_WIDTH /
                                   VIEWPORT_WIDTH);
 
+// TODO: This keeps track of all in-progress screenshots to ensure
+// that we don't submit multiple identical jobs to Blitline, but it's
+// not 12-factor compliant. We should use Redis or something
+// to keep track of jobs across multiple processes.
 var inProgress = {};
 
 function makeBroadcaster(key, firstCb) {
