@@ -49,6 +49,11 @@ the form at the root of the website. Alternatively, issue a `POST`
 request to the root of the website with the `url` parameter set to the
 URL of the make.
 
+### Discourse Support
+
+You can use `contrib/discourse-onebox.js` as a basis for automatically
+embedding screenshots of Webmaker makes in a [Discourse][] forum.
+
 ## Optional Environment Variables
 
 If your S3 bucket is hosted at a custom domain, you can optionally
@@ -59,3 +64,4 @@ set `S3_WEBSITE` to its origin followed by a `/`, e.g.
   [Webmaker]: https://webmaker.org/
   [Heroku add-on]: https://addons.heroku.com/blitline
   [permission]: http://blitline.com/docs/s3_permissions
+  [Discourse]: http://discourse.org/
