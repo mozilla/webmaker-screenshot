@@ -26,6 +26,35 @@ node app.js
 
 At this point, you can visit http://localhost:3000/.
 
+## Usage
+
+Given a make at:
+
+    https://toolness.makes.org/thimble/LTcwNzI2NDUxMg==/example
+
+The screenshot can be found at:
+
+    http://localhost:3000/toolness.makes.org/thimble/LTcwNzI2NDUxMg==/example
+
+In other words, just remove the `https://` at the beginning of the make and
+add it to the root of the web service.
+
+If the screenshot doesn't already exist, it will be created on-the-fly.
+Then the client will be redirected to the screenshot's location on S3.
+
+### Regenerating Screenshots
+
+If a screenshot becomes out-of-date, you can forcibly regenerate it using
+the form at the root of the website. Alternatively, issue a `POST`
+request to the root of the website with the `url` parameter set to the
+URL of the make.
+
+## Optional Environment Variables
+
+If your S3 bucket is hosted at a custom domain, you can optionally
+set `S3_WEBSITE` to its origin followed by a `/`, e.g.
+`http://my-webmaker-screenshots.com/`.
+
   [Blitline]: http://blitline.com/
   [Webmaker]: https://webmaker.org/
   [Heroku add-on]: https://addons.heroku.com/blitline
