@@ -25,6 +25,7 @@ function makeBroadcaster(key, firstCb) {
 
 function screenshot(options, cb) {
   var key = options.s3.key;
+  var wait = options.wait;
   if (key in inProgress)
     // We're already making a screenshot, just piggyback on the other job.
     return inProgress[key].push(cb);
@@ -37,7 +38,7 @@ function screenshot(options, cb) {
       src_type: "screen_shot_url",
       src_data: {
         viewport: VIEWPORT_WIDTH + "x" + VIEWPORT_HEIGHT,
-        delay: 0
+        delay: wait
       },
       functions: [{
         name: "crop",

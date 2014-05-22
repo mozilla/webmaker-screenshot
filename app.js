@@ -6,6 +6,8 @@ var keys = require('./keys');
 var makes = require('./makes');
 var blitline = require('./blitline');
 
+var DEFAULT_WAIT = 0;
+var EXTENDED_WAIT = 8000;
 var PORT = process.env.PORT || 3000;
 var BLITLINE_APPLICATION_ID = process.env.BLITLINE_APPLICATION_ID;
 var S3_BUCKET = process.env.S3_BUCKET;
@@ -23,6 +25,7 @@ app.use(bodyParser.json());
 
 app.post('/', function(req, res, next) {
   var url = makes.validateAndNormalizeUrl(req.body.url);
+  var wait = req.body.wait ? EXTENDED_WAIT : DEFAULT_WAIT;
 
   if (!url)
     return res.send(400, {error: 'URL must be a Webmaker make.'});
@@ -36,6 +39,7 @@ app.post('/', function(req, res, next) {
     blitline.screenshot({
       appId: BLITLINE_APPLICATION_ID,
       url: url,
+      wait: wait,
       s3: {
         bucket: S3_BUCKET,
         key: key
@@ -68,6 +72,7 @@ app.use(function(req, res, next) {
       blitline.screenshot({
         appId: BLITLINE_APPLICATION_ID,
         url: makeUrl,
+        wait: DEFAULT_WAIT,
         s3: {
           bucket: S3_BUCKET,
           key: key
