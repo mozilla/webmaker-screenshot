@@ -7,7 +7,7 @@ var makes = require('./makes');
 var blitline = require('./blitline');
 
 var DEFAULT_WAIT = 0;
-var EXTENDED_WAIT = 8000;
+var EXTENDED_WAIT = 10000;
 var PORT = process.env.PORT || 3000;
 var BLITLINE_APPLICATION_ID = process.env.BLITLINE_APPLICATION_ID;
 var S3_BUCKET = process.env.S3_BUCKET;
