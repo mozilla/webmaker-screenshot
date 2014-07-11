@@ -18,7 +18,10 @@ Discourse.PostView.reopen({
       var href = $(this).attr('href');
       var parent = this.parentNode;
       var isLinkOnItsOwnLine = (parent.nodeName == 'P' &&
-                                $(parent).children().length == 1);
+                                $(parent).children().length == 1 &&
+                                ($.trim($(parent).text()) ==
+                                 $.trim($(this).text())));
+
       if (!(MAKES_URL_RE.test(href) && isLinkOnItsOwnLine)) return;
 
       var onebox = $(
