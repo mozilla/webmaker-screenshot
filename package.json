@@ -9,6 +9,7 @@
     "request": "2.34.0"
   },
   "devDependencies": {
+    "nock": "0.57.0",
     "should": "4.6.1",
     "mocha": "2.1.0"
   },
