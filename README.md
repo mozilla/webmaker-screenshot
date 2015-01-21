@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/toolness/webmaker-screenshot.svg?branch=master)](https://travis-ci.org/toolness/webmaker-screenshot)
+
 This is a simple web service that uses [Blitline][] to make it easy
 to render screenshots of [Webmaker][] makes on-the-fly.
 
