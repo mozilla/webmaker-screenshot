@@ -1,3 +1,6 @@
+var redis = require('redis');
+var urlParse = require("url").parse;
+
 var LOCK_EXPIRY_IN_SECONDS = 10;
 var UNLOCK_WAIT_MS = 500;
 var RELEASE_LOCK_SCRIPT = [
@@ -9,7 +12,20 @@ var RELEASE_LOCK_SCRIPT = [
   'end'
 ].join('\n');
 
+function clientFromURL(url) {
+  var urlInfo = urlParse(url);
+  var client = redis.createClient(urlInfo.port, urlInfo.hostname);
+  if (urlInfo.auth)
+    client.auth(urlInfo.auth.split(":")[1]);
+  return client;
+}
+
 function RedisCache(client) {
+  if (!client) {
+    client = redis.createClient();
+  } else if (typeof(client) == 'string') {
+    client = clientFromURL(client);
+  }
   this.client = client;
 }
 

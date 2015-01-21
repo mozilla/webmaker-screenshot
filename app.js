@@ -1,7 +1,6 @@
 var request = require('request');
 var express = require('express');
 var bodyParser = require('body-parser');
-var redis = require('redis');
 
 var RedisCache = require('./redis-cache');
 var keys = require('./keys');
@@ -21,7 +20,8 @@ if (!BLITLINE_APPLICATION_ID)
 if (!S3_BUCKET)
   throw new Error('S3_BUCKET must be defined');
 
-var redisCache = new RedisCache(redis.createClient());
+var redisCache = new RedisCache(process.env.REDIS_URL ||
+                                process.env.REDISTOGO_URL);
 var app = express();
 
 app.use(bodyParser.json());
