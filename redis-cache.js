@@ -3,7 +3,7 @@ var urlParse = require("url").parse;
 
 var LOCK_EXPIRY_IN_SECONDS = 10;
 var INFO_EXPIRY_IN_SECONDS = 60 * 60;
-var UNLOCK_WAIT_MS = 500;
+var DEFAULT_UNLOCK_WAIT_MS = 500;
 var RELEASE_LOCK_SCRIPT = [
   'if redis.call("get",KEYS[1]) == ARGV[1]',
   'then',
@@ -21,7 +21,7 @@ function clientFromURL(url) {
   return client;
 }
 
-function RedisCache(client, prefix) {
+function RedisCache(client, prefix, unlockWaitMs) {
   if (!client) {
     client = redis.createClient();
   } else if (typeof(client) == 'string') {
@@ -29,6 +29,7 @@ function RedisCache(client, prefix) {
   }
   this.client = client;
   this.prefix = prefix || '';
+  this.unlockWaitMs = unlockWaitMs || DEFAULT_UNLOCK_WAIT_MS;
 }
 
 RedisCache.prototype = {
@@ -44,16 +45,19 @@ RedisCache.prototype = {
     var infoKey = this._getInfoKey(url);
     var lockToken = Math.random().toString();
     var lockKey = this.prefix + "lock_" + url;
-    retryMethod = retryMethod || 'lockAndSet';
+
+    retryMethod = retryMethod || this.lockAndSet;
+    if (typeof(retryMethod) != 'function')
+      throw new Error('retryMethod is not a function');
+
     self.client.set([
       lockKey, lockToken, "NX", "EX",
       LOCK_EXPIRY_IN_SECONDS.toString()
     ], function(err, result) {
       if (err) return doneCb(e);
       if (result === null) {
-        setTimeout(function() {
-          self[retryMethod](url, cacheCb, doneCb);
-        }, UNLOCK_WAIT_MS);
+        setTimeout(retryMethod.bind(self, url, cacheCb, doneCb, retryMethod),
+                   self.unlockWaitMs);
       } else {
         cacheCb(url, function(err, info) {
           if (err) {
@@ -89,7 +93,7 @@ RedisCache.prototype = {
         }
         return doneCb(null, info);
       } else {
-        return self.lockAndSet(url, cacheCb, doneCb, 'get');
+        return self.lockAndSet(url, cacheCb, doneCb, self.get);
       }
     });
   }
