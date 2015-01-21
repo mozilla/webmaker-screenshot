@@ -36,10 +36,6 @@ RedisCache.prototype = {
   _getInfoKey: function(url) {
     return this.prefix + "info_" + url
   },
-  set: function(url, info, cb) {
-    this.client.set(this._getInfoKey(url), JSON.stringify(info),
-                    "EX", INFO_EXPIRY_IN_SECONDS.toString(), cb);
-  },
   lockAndSet: function(url, cacheCb, doneCb, retryMethod) {
     var self = this;
     var infoKey = this._getInfoKey(url);
