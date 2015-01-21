@@ -49,6 +49,12 @@ function cacheScreenshot(wait, key, cb) {
   });
 }
 
+redisCache.client.on('error', function(err) {
+  // Hopefully we've just temporarily lost connection to the
+  // server.
+  console.log(err);
+});
+
 app.use(bodyParser.json());
 
 app.post('/', function(req, res, next) {
