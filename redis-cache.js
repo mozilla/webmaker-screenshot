@@ -55,20 +55,18 @@ RedisCache.prototype = {
         setTimeout(retryMethod.bind(self, url, cacheCb, doneCb, retryMethod),
                    self.unlockWaitMs);
       } else {
+        var releaseArgs = [RELEASE_LOCK_SCRIPT, "1", lockKey, lockToken];
         cacheCb(url, function(err, info) {
-          if (err) {
-            // TODO: Be nice and release our lock.
-            return doneCb(err);
-          }
+          if (err)
+            return self.client.eval(releaseArgs, function() {
+              return doneCb(err);
+            });
           self.client.multi()
             .set(infoKey, JSON.stringify(info),
                  "EX", INFO_EXPIRY_IN_SECONDS.toString())
-            .eval(RELEASE_LOCK_SCRIPT, "1", lockKey, lockToken)
+            .eval(releaseArgs)
             .exec(function(err, results) {
-              if (err) {
-                // TODO: Be nice and release our lock.
-                return doneCb(err);
-              }
+              if (err) return doneCb(err);
               doneCb(null, info);
             });
         });

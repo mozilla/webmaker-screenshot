@@ -14,7 +14,7 @@ describe("RedisCache", function() {
   afterEach(function(done) {
     client.keys('TESTING_*', function(err, keys) {
       if (err) return done(err);
-      client.del(keys, done);
+      keys.length ? client.del(keys, done) : done();
     });
   });
 
@@ -38,12 +38,26 @@ describe("RedisCache", function() {
           cb(null, "yay");
         });
       }, function(err, info) {
+        if (err) return done(err);
         client.get("TESTING_lock_bar", function(err, val) {
           if (err) return done(err);
           should.not.exist(val);
           done();
         });
       });
+    });
+
+    it("should release lock after caching error", function(done) {
+      cache.lockAndSet("bar", function cache(key, cb) {
+        process.nextTick(cb.bind(null, new Error("blah")));
+      }, function(err, info) {
+        err.message.should.eql("blah");
+        client.get("TESTING_lock_bar", function(err, val) {
+          if (err) return done(err);
+          should.not.exist(val);
+          done();
+        });
+      });      
     });
 
     it("should call retryMethod when lock is taken", function(done) {
