@@ -18,11 +18,11 @@ give Blitline [permission][] to upload into it.
 
 ## Quick Start
 
-From the root directory, run:
-
 **Note:** The following instructions assume redis is installed at
 the default port on localhost. If this isn't the case, see below
 for configuring redis.
+
+From the root directory, run:
 
 ```
 npm install
