@@ -2,6 +2,7 @@ var redis = require('redis');
 var urlParse = require("url").parse;
 
 var LOCK_EXPIRY_IN_SECONDS = 10;
+var INFO_EXPIRY_IN_SECONDS = 60 * 60;
 var UNLOCK_WAIT_MS = 500;
 var RELEASE_LOCK_SCRIPT = [
   'if redis.call("get",KEYS[1]) == ARGV[1]',
@@ -34,7 +35,8 @@ RedisCache.prototype = {
     return "info_" + url
   },
   set: function(url, info, cb) {
-    this.client.set(this._getInfoKey(url), JSON.stringify(info), cb);
+    this.client.set(this._getInfoKey(url), JSON.stringify(info),
+                    "EX", INFO_EXPIRY_IN_SECONDS.toString(), cb);
   },
   get: function(url, cacheCb, doneCb) {
     var self = this;
@@ -68,7 +70,8 @@ RedisCache.prototype = {
                 return doneCb(err);
               }
               self.client.multi()
-                .set(infoKey, JSON.stringify(info))
+                .set(infoKey, JSON.stringify(info),
+                     "EX", INFO_EXPIRY_IN_SECONDS.toString())
                 .eval(RELEASE_LOCK_SCRIPT, "1", lockKey, lockToken)
                 .exec(function(err, results) {
                   if (err) {
