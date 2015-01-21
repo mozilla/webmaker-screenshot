@@ -2,6 +2,7 @@ var request = require('request');
 var express = require('express');
 var bodyParser = require('body-parser');
 
+var RedisCache = require('./redis-cache');
 var keys = require('./keys');
 var makes = require('./makes');
 var blitline = require('./blitline');
@@ -19,6 +20,8 @@ if (!BLITLINE_APPLICATION_ID)
 if (!S3_BUCKET)
   throw new Error('S3_BUCKET must be defined');
 
+var redisCache = new RedisCache(process.env.REDIS_URL ||
+                                process.env.REDISTOGO_URL);
 var app = express();
 
 app.use(bodyParser.json());
@@ -46,7 +49,11 @@ app.post('/', function(req, res, next) {
       }
     }, function(err) {
       if (err) return next(err);
-      return res.send({screenshot: S3_WEBSITE + key});
+      var url = S3_WEBSITE + key;
+      redisCache.set(key, {status: 302, url: url}, function(err) {
+        if (err) return next(err);
+        return res.send({screenshot: url});
+      });
     });
   });
 });
@@ -56,32 +63,43 @@ app.use(function(req, res, next) {
   if (!(req.method == 'GET' && keys.isWellFormed(key)))
     return next();
 
-  var s3url = S3_WEBSITE + key;
+  redisCache.get(key, function cache(cb) {
+    var s3url = S3_WEBSITE + key;
 
-  request.head(s3url, function(err, s3res) {
-    if (err) return next(err);
-    if (s3res.statusCode == 200)
-      return res.redirect(s3url);
+    request.head(s3url, function(err, s3res) {
+      if (err) return cb(err);
+      if (s3res.statusCode == 200)
+        return cb(null, {status: 302, url: s3url});
 
-    var makeUrl = keys.toMakeUrl(key);
+      var makeUrl = keys.toMakeUrl(key);
 
-    makes.verifyIsHtml(makeUrl, function(err, isHtml) {
-      if (err) return next(err);
-      if (!isHtml) return next();
+      makes.verifyIsHtml(makeUrl, function(err, isHtml) {
+        if (err) return cb(err);
+        if (!isHtml) return cb(null, {
+          status: 404,
+          reason: 'URL is not HTML'
+        });
 
-      blitline.screenshot({
-        appId: BLITLINE_APPLICATION_ID,
-        url: makeUrl,
-        wait: DEFAULT_WAIT,
-        s3: {
-          bucket: S3_BUCKET,
-          key: key
-        }
-      }, function(err) {
-        if (err) return next(err);
-        return res.redirect(s3url);
+        blitline.screenshot({
+          appId: BLITLINE_APPLICATION_ID,
+          url: makeUrl,
+          wait: DEFAULT_WAIT,
+          s3: {
+            bucket: S3_BUCKET,
+            key: key
+          }
+        }, function(err) {
+          if (err) return cb(err);
+          return cb(null, {status: 302, url: s3url});
+        });
       });
     });
+  }, function done(err, info) {
+    if (err) return next(err);
+    if (info.status == 404) return next();
+    if (info.status == 302)
+      return res.redirect(info.url);
+    return next(new Error("invalid status: " + info.status));
   });
 });
 

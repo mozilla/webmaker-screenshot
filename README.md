@@ -6,6 +6,7 @@ to render screenshots of [Webmaker][] makes on-the-fly.
 * Node v0.10
 * A free Blitline account
 * An Amazon S3 bucket
+* Redis 2.6 or later
 
 You can get a Blitline account either through their website, or via
 a free [Heroku add-on][].
@@ -59,6 +60,13 @@ embedding screenshots of Webmaker makes in a [Discourse][] forum.
 If your S3 bucket is hosted at a custom domain, you can optionally
 set `S3_WEBSITE` to its origin followed by a `/`, e.g.
 `http://my-webmaker-screenshots.com/`.
+
+If your redis instance isn't at the default of port 6379 on localhost,
+you can define `REDIS_URL` to point at it. Use the form
+`redis://:password@hostname:port`.
+
+`REDISTOGO_URL` is a synonym for `REDIS_URL`, to make deployment on
+Heroku easier.
 
   [Blitline]: http://blitline.com/
   [Webmaker]: https://webmaker.org/
