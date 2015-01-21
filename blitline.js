@@ -6,30 +6,9 @@ var THUMBNAIL_WIDTH = 320;
 var THUMBNAIL_HEIGHT = Math.floor(VIEWPORT_HEIGHT * THUMBNAIL_WIDTH /
                                   VIEWPORT_WIDTH);
 
-// TODO: This keeps track of all in-progress screenshots to ensure
-// that we don't submit multiple identical jobs to Blitline, but it's
-// not 12-factor compliant. We should use Redis or something
-// to keep track of jobs across multiple processes.
-var inProgress = {};
-
-function makeBroadcaster(key, firstCb) {
-  var callbacks = [firstCb];
-  inProgress[key] = callbacks;
-  return function(err, info) {
-    delete inProgress[key];
-    callbacks.forEach(function(cb) {
-      process.nextTick(function() { cb(err, info); });
-    });
-  };
-}
-
 function screenshot(options, cb) {
   var key = options.s3.key;
   var wait = options.wait;
-  if (key in inProgress)
-    // We're already making a screenshot, just piggyback on the other job.
-    return inProgress[key].push(cb);
-  cb = makeBroadcaster(key, cb);
   request.post('http://api.blitline.com/job', {
     json: {json: {
       v: 1.20,

@@ -14,9 +14,15 @@ function RedisCache(client) {
 }
 
 RedisCache.prototype = {
+  _getInfoKey: function(url) {
+    return "info_" + url
+  },
+  set: function(url, info, cb) {
+    this.client.set(this._getInfoKey(url), JSON.stringify(info), cb);
+  },
   get: function(url, cacheCb, doneCb) {
     var self = this;
-    var infoKey = "info_" + url;
+    var infoKey = self._getInfoKey(url);
 
     self.client.get(infoKey, function(err, info) {
       if (err) return doneCb(err);
