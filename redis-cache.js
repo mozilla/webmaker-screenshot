@@ -38,6 +38,42 @@ RedisCache.prototype = {
     this.client.set(this._getInfoKey(url), JSON.stringify(info),
                     "EX", INFO_EXPIRY_IN_SECONDS.toString(), cb);
   },
+  lockAndSet: function(url, cacheCb, doneCb, retryMethod) {
+    var self = this;
+    var infoKey = this._getInfoKey(url);
+    var lockToken = Math.random().toString();
+    var lockKey = "lock_" + url;
+    retryMethod = retryMethod || 'lockAndSet';
+    self.client.set([
+      lockKey, lockToken, "NX", "EX",
+      LOCK_EXPIRY_IN_SECONDS.toString()
+    ], function(err, result) {
+      if (err) return doneCb(e);
+      if (result === null) {
+        setTimeout(function() {
+          self[retryMethod](url, cacheCb, doneCb);
+        }, UNLOCK_WAIT_MS);
+      } else {
+        cacheCb(function(err, info) {
+          if (err) {
+            // TODO: Be nice and release our lock.
+            return doneCb(err);
+          }
+          self.client.multi()
+            .set(infoKey, JSON.stringify(info),
+                 "EX", INFO_EXPIRY_IN_SECONDS.toString())
+            .eval(RELEASE_LOCK_SCRIPT, "1", lockKey, lockToken)
+            .exec(function(err, results) {
+              if (err) {
+                // TODO: Be nice and release our lock.
+                return doneCb(err);
+              }
+              doneCb(null, info);
+            });
+        });
+      }
+    });
+  },
   get: function(url, cacheCb, doneCb) {
     var self = this;
     var infoKey = self._getInfoKey(url);
@@ -52,37 +88,7 @@ RedisCache.prototype = {
         }
         return doneCb(null, info);
       } else {
-        var lockToken = Math.random().toString();
-        var lockKey = "lock_" + url;
-        self.client.set([
-          lockKey, lockToken, "NX", "EX",
-          LOCK_EXPIRY_IN_SECONDS.toString()
-        ], function(err, result) {
-          if (err) return doneCb(e);
-          if (result === null) {
-            setTimeout(function() {
-              self.get(url, cacheCb, doneCb);
-            }, UNLOCK_WAIT_MS);
-          } else {
-            cacheCb(function(err, info) {
-              if (err) {
-                // TODO: Be nice and release our lock.
-                return doneCb(err);
-              }
-              self.client.multi()
-                .set(infoKey, JSON.stringify(info),
-                     "EX", INFO_EXPIRY_IN_SECONDS.toString())
-                .eval(RELEASE_LOCK_SCRIPT, "1", lockKey, lockToken)
-                .exec(function(err, results) {
-                  if (err) {
-                    // TODO: Be nice and release our lock.
-                    return doneCb(err);
-                  }
-                  doneCb(null, info);
-                });
-            });
-          }
-        });
+        return self.lockAndSet(url, cacheCb, doneCb, 'get');
       }
     });
   }
