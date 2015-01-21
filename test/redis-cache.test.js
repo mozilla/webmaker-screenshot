@@ -30,7 +30,7 @@ describe("RedisCache", function() {
       });
     });
 
-    it("should hold lock while caching", function(done) {
+    it("should hold lock while caching, release after", function(done) {
       cache.lockAndSet("bar", function cache(key, cb) {
         client.get("TESTING_lock_bar", function(err, val) {
           if (err) return done(err);
