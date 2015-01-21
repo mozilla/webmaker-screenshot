@@ -21,18 +21,19 @@ function clientFromURL(url) {
   return client;
 }
 
-function RedisCache(client) {
+function RedisCache(client, prefix) {
   if (!client) {
     client = redis.createClient();
   } else if (typeof(client) == 'string') {
     client = clientFromURL(client);
   }
   this.client = client;
+  this.prefix = prefix || '';
 }
 
 RedisCache.prototype = {
   _getInfoKey: function(url) {
-    return "info_" + url
+    return this.prefix + "info_" + url
   },
   set: function(url, info, cb) {
     this.client.set(this._getInfoKey(url), JSON.stringify(info),
@@ -42,7 +43,7 @@ RedisCache.prototype = {
     var self = this;
     var infoKey = this._getInfoKey(url);
     var lockToken = Math.random().toString();
-    var lockKey = "lock_" + url;
+    var lockKey = this.prefix + "lock_" + url;
     retryMethod = retryMethod || 'lockAndSet';
     self.client.set([
       lockKey, lockToken, "NX", "EX",

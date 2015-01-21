@@ -18,8 +18,13 @@ give Blitline [permission][] to upload into it.
 
 From the root directory, run:
 
+**Note:** The following instructions assume redis is installed at
+the default port on localhost. If this isn't the case, see below
+for configuring redis.
+
 ```
 npm install
+npm test
 export BLITLINE_APPLICATION_ID='your blitline application id'
 export S3_BUCKET='your s3 bucket'
 node app.js
@@ -67,6 +72,14 @@ you can define `REDIS_URL` to point at it. Use the form
 
 `REDISTOGO_URL` is a synonym for `REDIS_URL`, to make deployment on
 Heroku easier.
+
+## Running Tests
+
+To run the test suite, run `npm test`.
+
+Currently, the test suite assumes that redis is installed on
+localhost at the default port. At present, there is no way to
+override this.
 
   [Blitline]: http://blitline.com/
   [Webmaker]: https://webmaker.org/

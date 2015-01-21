@@ -8,9 +8,12 @@
     "express": "~4.2.0",
     "request": "2.34.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "should": "4.6.1",
+    "mocha": "2.1.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node node_modules/mocha/bin/mocha --recursive test"
   },
   "author": "",
   "license": "BSD-2-Clause"
