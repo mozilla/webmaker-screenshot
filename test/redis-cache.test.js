@@ -22,7 +22,7 @@ describe("RedisCache", function() {
     it("should pass arguments as expected", function(done) {
       cache.lockAndSet("foo", function cache(key, cb) {
         key.should.eql("foo");
-        cb(null, {thing: "bar"});
+        process.nextTick(cb.bind(null, null, {thing: "bar"}));
       }, function(err, info) {
         if (err) return done(err);
         info.should.eql({thing: "bar"});
@@ -62,11 +62,7 @@ describe("RedisCache", function() {
           cb(null, "hooray");
         };
         cache.lockAndSet("foo", secondCache, secondDone, retry);
-      }, function(err, info) {
-        if (err) return done(err);
-        info.should.eql("hooray");
-        done();
-      });
+      }, done);
     });
   });
 });
