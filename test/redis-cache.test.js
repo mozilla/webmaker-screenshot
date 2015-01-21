@@ -30,6 +30,22 @@ describe("RedisCache", function() {
       });
     });
 
+    it("should hold lock while caching", function(done) {
+      cache.lockAndSet("bar", function cache(key, cb) {
+        client.get("TESTING_lock_bar", function(err, val) {
+          if (err) return done(err);
+          should.exist(val);
+          cb(null, "yay");
+        });
+      }, function(err, info) {
+        client.get("TESTING_lock_bar", function(err, val) {
+          if (err) return done(err);
+          should.not.exist(val);
+          done();
+        });
+      });
+    });
+
     it("should call retryMethod when lock is taken", function(done) {
       cache.lockAndSet("foo", function firstCache(key, cb) {
         var secondCache = function(key, cb) {
