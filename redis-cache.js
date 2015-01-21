@@ -54,7 +54,7 @@ RedisCache.prototype = {
           self[retryMethod](url, cacheCb, doneCb);
         }, UNLOCK_WAIT_MS);
       } else {
-        cacheCb(function(err, info) {
+        cacheCb(url, function(err, info) {
           if (err) {
             // TODO: Be nice and release our lock.
             return doneCb(err);

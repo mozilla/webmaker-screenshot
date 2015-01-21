@@ -24,11 +24,37 @@ var redisCache = new RedisCache(process.env.REDIS_URL ||
                                 process.env.REDISTOGO_URL);
 var app = express();
 
+function cacheScreenshot(wait, key, cb) {
+  var makeUrl = keys.toMakeUrl(key);
+
+  makes.verifyIsHtml(makeUrl, function(err, isHtml) {
+    if (err) return cb(err);
+    if (!isHtml) return cb(null, {
+      status: 404,
+      reason: 'URL is not HTML'
+    });
+
+    blitline.screenshot({
+      appId: BLITLINE_APPLICATION_ID,
+      url: makeUrl,
+      wait: wait,
+      s3: {
+        bucket: S3_BUCKET,
+        key: key
+      }
+    }, function(err) {
+      if (err) return cb(err);
+      return cb(null, {status: 302, url: S3_WEBSITE + key});
+    });
+  });
+}
+
 app.use(bodyParser.json());
 
 app.post('/', function(req, res, next) {
   var url = makes.validateAndNormalizeUrl(req.body.url);
   var wait = req.body.wait ? EXTENDED_WAIT : DEFAULT_WAIT;
+  var cacheFunc = cacheScreenshot.bind(null, wait);
   var key;
 
   if (!url)
@@ -36,28 +62,7 @@ app.post('/', function(req, res, next) {
 
   key = keys.fromMakeUrl(url);
 
-  redisCache.lockAndSet(key, function cache(cb) {
-    makes.verifyIsHtml(url, function(err, isHtml) {
-      if (err) return cb(err);
-      if (!isHtml) return cb(null, {
-        status: 404,
-        reason: 'URL is not HTML'
-      });
-
-      blitline.screenshot({
-        appId: BLITLINE_APPLICATION_ID,
-        url: url,
-        wait: wait,
-        s3: {
-          bucket: S3_BUCKET,
-          key: key
-        }
-      }, function(err) {
-        if (err) return cb(err);
-        return cb(null, {status: 302, url: S3_WEBSITE + key});
-      });
-    });
-  }, function done(err, info) {
+  redisCache.lockAndSet(key, cacheFunc, function done(err, info) {
     if (err) return next(err);
     if (info.status != 302)
       return res.send(400, {error: info.reason});
@@ -70,7 +75,7 @@ app.use(function(req, res, next) {
   if (!(req.method == 'GET' && keys.isWellFormed(key)))
     return next();
 
-  redisCache.get(key, function cache(cb) {
+  redisCache.get(key, function cache(key, cb) {
     var s3url = S3_WEBSITE + key;
 
     request.head(s3url, function(err, s3res) {
@@ -78,28 +83,7 @@ app.use(function(req, res, next) {
       if (s3res.statusCode == 200)
         return cb(null, {status: 302, url: s3url});
 
-      var makeUrl = keys.toMakeUrl(key);
-
-      makes.verifyIsHtml(makeUrl, function(err, isHtml) {
-        if (err) return cb(err);
-        if (!isHtml) return cb(null, {
-          status: 404,
-          reason: 'URL is not HTML'
-        });
-
-        blitline.screenshot({
-          appId: BLITLINE_APPLICATION_ID,
-          url: makeUrl,
-          wait: DEFAULT_WAIT,
-          s3: {
-            bucket: S3_BUCKET,
-            key: key
-          }
-        }, function(err) {
-          if (err) return cb(err);
-          return cb(null, {status: 302, url: s3url});
-        });
-      });
+      cacheScreenshot(DEFAULT_WAIT, key, cb);
     });
   }, function done(err, info) {
     if (err) return next(err);
