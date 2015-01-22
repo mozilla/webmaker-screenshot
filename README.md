@@ -83,6 +83,8 @@ Currently, the test suite assumes that redis is installed on
 localhost at the default port. At present, there is no way to
 override this.
 
+There's also a manual test suite at http://localhost:3000/manual-test/.
+
   [Blitline]: http://blitline.com/
   [Webmaker]: https://webmaker.org/
   [Heroku add-on]: https://addons.heroku.com/blitline

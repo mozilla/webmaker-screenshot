@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,700" rel="stylesheet">
+<link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="/css/makerstrap.min.css">
+<style>
+.screenshot {
+  -moz-box-sizing: border-box;
+  width: 320px;
+  height: 240px;
+  border: 1px solid gray;
+  margin: 10px;
+}
+
+.screenshot.loading {
+  padding: 100px;
+  opacity: 0.5;
+}
+</style>
+<title>Manual Tests for Webmaker Screenshot</title>
+<body>
+<div class="container">
+  <h1>Manual Tests for Webmaker Screenshot</h1>
+  <ol>
+    <li>
+      <p>Create a new <a href="https://webmaker.org/">Webmaker</a> make and paste it into the <strong>Screenshot Displayer Tool</strong> below.</p>
+    </li>
+    <li>
+      <p>Click the <strong>Show Screenshots</strong> button. After a bit of time, screenshots of your make should be displayed. (Some or all of these screenshots will look the same, and that's ok!)</p>
+    </li>
+    <li>
+      <p>Make a trivial modification to your make. Click the 
+        <strong>Show Screenshots</strong> button; the change should
+        <em>not</em> be reflected in the screenshots.</p>
+    </li>
+    <li>
+      <p>Use the <a href="/" target="_blank">Webmaker Screenshot</a> form to regenerate the screenshot for your make. Then come back here; clicking <strong>Show Screenshots</strong> should now show the updated screenshots for your make.</p>
+    </li>
+  </ol>
+  <h2>Screenshot Displayer Tool</h2>
+  <form role="form" id="screenshot-displayer">
+    <div class="form-group">
+      <label class="sr-only" for="url">URL</label>
+      <input class="form-control" id="url" type="url" name="url" placeholder="https://" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Show Screenshots</button>
+    <div id="screenshots">
+    </div>
+  </form>
+  <div id="templates" style="display: none">
+    <img class="screenshot loading" src="/img/throbber.svg">
+  </div>
+</div>
+</body>
+<script>
+var NUM_SIMULTANEOUS_REQUESTS = 3;
+var MIN_LOAD_TIME = 1500;
+
+var displayerForm = document.getElementById('screenshot-displayer');
+var screenshots = document.getElementById('screenshots');
+
+function createScreenshot(key, parent) {
+  var url = '/' + key + '?bust=' + Math.random();
+  var placeholder = document.querySelector('#templates .screenshot');
+  var img = document.createElement('img');
+  var loaded = false;
+  var minTimeElapsed = false;
+
+  function onDone() {
+    if (loaded && minTimeElapsed)
+      parent.replaceChild(img, placeholder);
+  }
+
+  placeholder = placeholder.cloneNode(true);
+  parent.appendChild(placeholder);
+  img.setAttribute('src', url);
+  img.setAttribute('class', 'screenshot');
+  img.onload = function() {
+    loaded = true;
+    onDone();
+  };
+  setTimeout(function() {
+    minTimeElapsed = true;
+    onDone();
+  }, MIN_LOAD_TIME);
+}
+
+displayerForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  var url = document.getElementById('url').value;
+  var match = url.match(/^https:\/\/(.+)$/);
+  if (!match)
+    return alert("URL must be a https url.");
+  var key = match[1];
+
+  screenshots.innerHTML = '';
+
+  for (var i = 0; i < NUM_SIMULTANEOUS_REQUESTS; i++)
+    createScreenshot(key, screenshots);
+});
+</script>
