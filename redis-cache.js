@@ -33,14 +33,14 @@ function RedisCache(client, prefix, unlockWaitMs) {
 }
 
 RedisCache.prototype = {
-  _getInfoKey: function(url) {
-    return this.prefix + "info_" + url
+  _getInfoKey: function(baseKey) {
+    return this.prefix + "info_" + baseKey
   },
-  lockAndSet: function(url, cacheCb, doneCb, retryMethod) {
+  lockAndSet: function(baseKey, cacheCb, doneCb, retryMethod) {
     var self = this;
-    var infoKey = this._getInfoKey(url);
+    var infoKey = this._getInfoKey(baseKey);
     var lockToken = Math.random().toString();
-    var lockKey = this.prefix + "lock_" + url;
+    var lockKey = this.prefix + "lock_" + baseKey;
 
     retryMethod = retryMethod || this.lockAndSet;
     if (typeof(retryMethod) != 'function')
@@ -52,11 +52,12 @@ RedisCache.prototype = {
     ], function(err, result) {
       if (err) return doneCb(err);
       if (result === null) {
-        setTimeout(retryMethod.bind(self, url, cacheCb, doneCb, retryMethod),
+        setTimeout(retryMethod.bind(self, baseKey, cacheCb, doneCb,
+                                    retryMethod),
                    self.unlockWaitMs);
       } else {
         var releaseArgs = [RELEASE_LOCK_SCRIPT, "1", lockKey, lockToken];
-        cacheCb(url, function(err, info) {
+        cacheCb(baseKey, function(err, info) {
           if (err)
             return self.client.eval(releaseArgs, function() {
               return doneCb(err);
@@ -73,9 +74,9 @@ RedisCache.prototype = {
       }
     });
   },
-  get: function(url, cacheCb, doneCb) {
+  get: function(baseKey, cacheCb, doneCb) {
     var self = this;
-    var infoKey = self._getInfoKey(url);
+    var infoKey = self._getInfoKey(baseKey);
 
     self.client.get(infoKey, function(err, info) {
       if (err) return doneCb(err);
@@ -87,7 +88,7 @@ RedisCache.prototype = {
         }
         return doneCb(null, info);
       } else {
-        return self.lockAndSet(url, cacheCb, doneCb, self.get);
+        return self.lockAndSet(baseKey, cacheCb, doneCb, self.get);
       }
     });
   }
