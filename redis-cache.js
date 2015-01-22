@@ -50,7 +50,7 @@ RedisCache.prototype = {
       lockKey, lockToken, "NX", "EX",
       LOCK_EXPIRY_IN_SECONDS.toString()
     ], function(err, result) {
-      if (err) return doneCb(e);
+      if (err) return doneCb(err);
       if (result === null) {
         setTimeout(retryMethod.bind(self, url, cacheCb, doneCb, retryMethod),
                    self.unlockWaitMs);
