@@ -41,12 +41,18 @@ function cacheScreenshot(wait, key, cb) {
 
     blitline.screenshot({
       appId: BLITLINE_APPLICATION_ID,
+      s3bucket: S3_BUCKET,
       url: makeUrl,
       wait: wait,
-      s3: {
-        bucket: S3_BUCKET,
-        key: key
-      }
+      viewport: {
+        width: VIEWPORT_WIDTH,
+        height: VIEWPORT_HEIGHT
+      },
+      thumbnails: [{
+        width: THUMBNAIL_WIDTH,
+        height: THUMBNAIL_HEIGHT,
+        s3key: key
+      }]
     }, function(err) {
       if (err) return cb(err);
       return cb(null, {status: 302, url: S3_WEBSITE + key});
