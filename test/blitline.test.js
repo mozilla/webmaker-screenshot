@@ -13,6 +13,61 @@ describe("blitline", function() {
       api.done();
     });
 
+    it("passes expected data to blitline", function(done) {
+      api = nock('http://api.blitline.com')
+        .post('/job')
+        .reply(500, function(uri, requestBody) {
+          JSON.parse(requestBody).should.eql({
+            json: {
+              v: 1.20,
+              application_id: 'appId',
+              src: 'http://example.org/foo',
+              src_type: "screen_shot_url",
+              src_data: {
+                viewport: "800x600",
+                delay: 15
+              },
+              functions: [{
+                name: "crop",
+                params: {
+                  x: 0,
+                  y: 0,
+                  width: 800,
+                  height: 600
+                },
+                functions: [{
+                  name: "resize_to_fit",
+                  params: {
+                    width: 320
+                  },
+                  save: {
+                    quality: 90,
+                    image_identifier: 'screenshot:key',
+                    s3_destination: {
+                      bucket: 'bucket',
+                      key: 'key'
+                    }
+                  }
+                }]
+              }]
+            }            
+          });
+          return {results: {error: 'ignore this'}};
+        });
+
+      screenshot({
+        s3: {
+          bucket: 'bucket',
+          key: 'key'
+        },
+        wait: 15,
+        appId: 'appId',
+        url: 'http://example.org/foo'
+      }, function() {
+        done();
+      });
+    });
+
     it("reports blitline errors", function(done) {
       api = nock('http://api.blitline.com')
         .post('/job')
