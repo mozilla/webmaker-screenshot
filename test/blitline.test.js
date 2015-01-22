@@ -5,7 +5,21 @@ var blitline = require('../blitline');
 
 describe("blitline", function() {
   describe("screenshot()", function() {
-    var MIN_OPTIONS = {s3: {}};
+    var MIN_OPTIONS = {
+      s3bucket: 'bucket',
+      viewport: {
+        width: 800,
+        height: 600
+      },
+      thumbnails: [{
+        width: 320,
+        height: 240,
+        s3key: 'key'
+      }],
+      wait: 15,
+      appId: 'appId',
+      url: 'http://example.org/foo'
+    };
     var api;
     var screenshot = blitline.screenshot;
 
@@ -55,15 +69,7 @@ describe("blitline", function() {
           return {results: {error: 'ignore this'}};
         });
 
-      screenshot({
-        s3: {
-          bucket: 'bucket',
-          key: 'key'
-        },
-        wait: 15,
-        appId: 'appId',
-        url: 'http://example.org/foo'
-      }, function() {
+      screenshot(MIN_OPTIONS, function() {
         done();
       });
     });
@@ -115,11 +121,11 @@ describe("blitline", function() {
           .reply(200);
         screenshot(MIN_OPTIONS, function(err, info) {
           if (err) return done(err);
-          info.should.eql({
+          info.should.eql([{
             url: 'http://example.org/thingy',
             width: 320,
             height: 240
-          });
+          }]);
           done();
         });
       });

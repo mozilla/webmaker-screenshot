@@ -14,6 +14,11 @@ var BLITLINE_APPLICATION_ID = process.env.BLITLINE_APPLICATION_ID;
 var S3_BUCKET = process.env.S3_BUCKET;
 var S3_WEBSITE = process.env.S3_WEBSITE ||
                  ('https://s3.amazonaws.com/' + S3_BUCKET + '/');
+var VIEWPORT_WIDTH = 800;
+var VIEWPORT_HEIGHT = 600;
+var THUMBNAIL_WIDTH = 320;
+var THUMBNAIL_HEIGHT = Math.floor(VIEWPORT_HEIGHT * THUMBNAIL_WIDTH /
+                                  VIEWPORT_WIDTH);
 
 if (!BLITLINE_APPLICATION_ID)
   throw new Error('BLITLINE_APPLICATION_ID must be defined');
