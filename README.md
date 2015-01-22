@@ -8,7 +8,7 @@ to render screenshots of [Webmaker][] makes on-the-fly.
 * Node v0.10
 * A free Blitline account
 * An Amazon S3 bucket
-* Redis 2.6 or later
+* Redis 2.6.17 or later
 
 You can get a Blitline account either through their website, or via
 a free [Heroku add-on][].
