@@ -41,7 +41,7 @@ app.get('/js/bundle.js', function(req, res, next) {
 });
 
 app.use(function(req, res, next) {
-  var mt = screenshotConfig.makeThumbnailFromPath(req.url);
+  var mt = screenshotConfig.makeThumbnailFromPath(req.path);
 
   if (!mt) return next();
 
