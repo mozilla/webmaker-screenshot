@@ -104,6 +104,21 @@ describe("RedisCache", function() {
       });
     });
 
+    it("should use lockKey option if present", function(done) {
+      cache.lockAndSet({
+        key: "bar",
+        lockKey: "goop",
+        cache: function(key, cb) {
+          client.get("TESTING_lock_goop", function(err, val) {
+            if (err) return done(err);
+            should.exist(val);
+            cb(null, "yay");
+          });
+        },
+        done: done
+      });
+    });
+
     it("should hold lock while caching, release after", function(done) {
       cache.lockAndSet({
         key: "bar",

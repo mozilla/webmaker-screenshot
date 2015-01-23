@@ -49,13 +49,14 @@ RedisCache.prototype = {
     });
     var self = this;
     var baseKey = options.key;
+    var baseLockKey = options.lockKey || baseKey;
     var cacheCb = options.cache;
     var doneCb = options.done;
     var retryCb = options.retry;
     var setTimeout = options.setTimeout || global.setTimeout;
     var infoKey = this._getInfoKey(baseKey);
     var lockToken = Math.random().toString();
-    var lockKey = this.prefix + "lock_" + baseKey;
+    var lockKey = this.prefix + "lock_" + baseLockKey;
 
     if (typeof(retryCb) != 'function')
       throw new Error('retry is not a function');
