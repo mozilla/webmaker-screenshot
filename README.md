@@ -63,6 +63,8 @@ URL of the make.
 You can use `contrib/discourse-onebox.js` as a basis for automatically
 embedding screenshots of Webmaker makes in a [Discourse][] forum.
 
+For an example of this in action, see the [Webmaker Discourse][].
+
 ## Optional Environment Variables
 
 If your S3 bucket is hosted at a custom domain, you can optionally
@@ -95,3 +97,4 @@ There's also a manual test suite at http://localhost:3000/manual-test/.
   [Heroku add-on]: https://addons.heroku.com/blitline
   [permission]: http://blitline.com/docs/s3_permissions
   [Discourse]: http://discourse.org/
+  [Webmaker Discourse]: http://discourse.webmaker.org/t/webmaker-screenshots/331
