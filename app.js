@@ -90,7 +90,6 @@ app.get('/js/bundle.js', function(req, res, next) {
 app.post('/', function(req, res, next) {
   var url = makes.validateAndNormalizeUrl(req.body.url);
   var wait = req.body.wait ? EXTENDED_WAIT : DEFAULT_WAIT;
-  var cacheFunc = cacheScreenshot.bind(null, wait);
   var key;
 
   if (!url)
@@ -98,11 +97,15 @@ app.post('/', function(req, res, next) {
 
   key = keys.fromMakeUrl(url);
 
-  redisCache.lockAndSet(key, cacheFunc, function done(err, info) {
-    if (err) return next(err);
-    if (info.status != 302)
-      return res.send(400, {error: info.reason});
-    return res.send({screenshot: info.url});
+  redisCache.lockAndSet({
+    key: key,
+    cache: cacheScreenshot.bind(null, wait),
+    done: function(err, info) {
+      if (err) return next(err);
+      if (info.status != 302)
+        return res.send(400, {error: info.reason});
+      return res.send({screenshot: info.url});
+    }
   });
 });
 
@@ -111,22 +114,26 @@ app.use(function(req, res, next) {
   if (!(req.method == 'GET' && keys.isWellFormed(key)))
     return next();
 
-  redisCache.get(key, function cache(key, cb) {
-    var s3url = S3_WEBSITE + key;
+  redisCache.get({
+    key: key,
+    cache: function(key, cb) {
+      var s3url = S3_WEBSITE + key;
 
-    request.head(s3url, function(err, s3res) {
-      if (err) return cb(err);
-      if (s3res.statusCode == 200)
-        return cb(null, {status: 302, url: s3url});
+      request.head(s3url, function(err, s3res) {
+        if (err) return cb(err);
+        if (s3res.statusCode == 200)
+          return cb(null, {status: 302, url: s3url});
 
-      cacheScreenshot(DEFAULT_WAIT, key, cb);
-    });
-  }, function done(err, info) {
-    if (err) return next(err);
-    if (info.status == 404) return next();
-    if (info.status == 302)
-      return res.redirect(info.url);
-    return next(new Error("invalid status: " + info.status));
+        cacheScreenshot(DEFAULT_WAIT, key, cb);
+      });
+    },
+    done: function(err, info) {
+      if (err) return next(err);
+      if (info.status == 404) return next();
+      if (info.status == 302)
+        return res.redirect(info.url);
+      return next(new Error("invalid status: " + info.status));
+    }
   });
 });
 

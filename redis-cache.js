@@ -1,5 +1,6 @@
-var redis = require('redis');
 var urlParse = require("url").parse;
+var _ = require('underscore');
+var redis = require('redis');
 
 var LOCK_EXPIRY_IN_SECONDS = 10;
 var INFO_EXPIRY_IN_SECONDS = 60 * 60;
@@ -36,15 +37,22 @@ RedisCache.prototype = {
   _getInfoKey: function(baseKey) {
     return this.prefix + "info_" + baseKey
   },
-  lockAndSet: function(baseKey, cacheCb, doneCb, retryMethod) {
+  lockAndSet: function(options) {
+    options = _.defaults(options || {}, {
+      retry: this.lockAndSet
+    });
     var self = this;
+    var baseKey = options.key;
+    var cacheCb = options.cache;
+    var doneCb = options.done;
+    var retryCb = options.retry;
+    var setTimeout = options.setTimeout || global.setTimeout;
     var infoKey = this._getInfoKey(baseKey);
     var lockToken = Math.random().toString();
     var lockKey = this.prefix + "lock_" + baseKey;
 
-    retryMethod = retryMethod || this.lockAndSet;
-    if (typeof(retryMethod) != 'function')
-      throw new Error('retryMethod is not a function');
+    if (typeof(retryCb) != 'function')
+      throw new Error('retry is not a function');
 
     self.client.set([
       lockKey, lockToken, "NX", "EX",
@@ -52,9 +60,7 @@ RedisCache.prototype = {
     ], function(err, result) {
       if (err) return doneCb(err);
       if (result === null) {
-        setTimeout(retryMethod.bind(self, baseKey, cacheCb, doneCb,
-                                    retryMethod),
-                   self.unlockWaitMs);
+        setTimeout(retryCb.bind(self, options), self.unlockWaitMs);
       } else {
         var releaseArgs = [RELEASE_LOCK_SCRIPT, "1", lockKey, lockToken];
         cacheCb(baseKey, function(err, info) {
@@ -74,8 +80,11 @@ RedisCache.prototype = {
       }
     });
   },
-  get: function(baseKey, cacheCb, doneCb) {
+  get: function(options) {
+    options = options || {};
     var self = this;
+    var baseKey = options.key;
+    var doneCb = options.done;
     var infoKey = self._getInfoKey(baseKey);
 
     self.client.get(infoKey, function(err, info) {
@@ -88,7 +97,9 @@ RedisCache.prototype = {
         }
         return doneCb(null, info);
       } else {
-        return self.lockAndSet(baseKey, cacheCb, doneCb, self.get);
+        return self.lockAndSet(_.extend({}, options, {
+          retry: self.get
+        }));
       }
     });
   }
