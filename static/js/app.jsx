@@ -39,8 +39,7 @@ var Thumbnail = React.createClass({
     var thumbnail = this.props.config;
     var mt = thumbnail.forMake(this.props.url);
     var imgPath = "/" + mt.key;
-    var url = window.location.protocol + '//' +
-              window.location.host + imgPath;
+    var url = '//' + window.location.host + imgPath;
 
     return (
       <div className="well">
