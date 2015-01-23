@@ -19,7 +19,7 @@ function changeURL(url) {
 }
 
 function render() {
-  var url = window.location.hash.slice(1);
+  var url = decodeURIComponent(window.location.hash.slice(1));
   React.render(
     <App config={screenshotConfig} url={url} onSubmitURL={changeURL}/>,
     document.getElementById("app")
