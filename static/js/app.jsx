@@ -49,24 +49,28 @@ var Thumbnail = React.createClass({
   },
   loadImage: function() {
     var image = document.createElement('img');
-    image.onload = this.onImageLoad;
-    image.onerror = this.onImageError;
-    image.setAttribute('src', this.getImagePath() + '?bust=' + Date.now());
+    var info = {
+      url: this.props.url,
+      src: this.getImagePath() + '?bust=' + Date.now()
+    };
+    image.onload = this.onImageLoad.bind(this, info);
+    image.onerror = this.onImageError.bind(this, info);
+    image.setAttribute('src', info.src);
   },
-  onImageError: function(e) {
-    if (!this.isMounted()) return;
+  onImageError: function(info) {
+    if (!this.isMounted() || info.url != this.props.url) return;
     // TODO: Actually make this show some kind of error image,
     // instead of a broken image.
     this.setState({
       loadingImage: false,
-      loadedImageSrc: e.target.getAttribute('src')
+      loadedImageSrc: info.src
     });
   },
-  onImageLoad: function(e) {
-    if (!this.isMounted()) return;
+  onImageLoad: function(info) {
+    if (!this.isMounted() || info.url != this.props.url) return;
     this.setState({
       loadingImage: false,
-      loadedImageSrc: e.target.getAttribute('src')
+      loadedImageSrc: info.src
     });
   },
   preventChange: function() {
