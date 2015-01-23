@@ -27,6 +27,10 @@ var CONFIG = {
 describe("ScreenshotConfig", function() {
   var config = new ScreenshotConfig(CONFIG);
 
+  it("works w/ default options", function() {
+    new ScreenshotConfig();
+  });
+
   it("should have default viewport", function() {
     config.defaultViewport.slug.should.eql("desktop");
   });
@@ -104,6 +108,14 @@ describe("ScreenshotConfig", function() {
 
       describe("MakeThumbnail", function() {
         var mt = thumbnail.forMake('https://u.makes.org/blah');
+
+        it("should have valid url", function() {
+          mt.url.should.eql('https://u.makes.org/blah_');
+        });
+
+        it("should have valid thumbnail", function() {
+          mt.thumbnail.should.equal(thumbnail);
+        });
 
         it("should have valid key", function() {
           mt.key.should.eql('desktop/small/u.makes.org/blah');

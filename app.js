@@ -4,6 +4,7 @@ var browserify = require('browserify');
 var bodyParser = require('body-parser');
 
 var RedisCache = require('./redis-cache');
+var ScreenshotConfig = require('./screenshot-config');
 var keys = require('./keys');
 var makes = require('./makes');
 var blitline = require('./blitline');
@@ -28,14 +29,17 @@ if (!S3_BUCKET)
   throw new Error('S3_BUCKET must be defined');
 
 var bundlejs;
+var screenshotConfig = new ScreenshotConfig();
 var redisCache = new RedisCache(process.env.REDIS_URL ||
                                 process.env.REDISTOGO_URL);
 var app = express();
 
-function cacheScreenshot(wait, key, cb) {
-  var makeUrl = keys.toMakeUrl(key);
+function cacheScreenshot(options, cb) {
+  var wait = options.wait;
+  var mt = options.makeThumbnail;
+  var allThumbnails = mt.thumbnail.viewport.thumbnails;
 
-  makes.verifyIsHtml(makeUrl, function(err, isHtml) {
+  makes.verifyIsHtml(mt.url, function(err, isHtml) {
     if (err) return cb(err);
     if (!isHtml) return cb(null, {
       status: 404,
@@ -45,21 +49,72 @@ function cacheScreenshot(wait, key, cb) {
     blitline.screenshot({
       appId: BLITLINE_APPLICATION_ID,
       s3bucket: S3_BUCKET,
-      url: makeUrl,
+      url: mt.url,
       wait: wait,
       viewport: {
-        width: VIEWPORT_WIDTH,
-        height: VIEWPORT_HEIGHT
+        width: mt.thumbnail.viewport.width,
+        height: mt.thumbnail.viewport.height
       },
-      thumbnails: [{
-        width: THUMBNAIL_WIDTH,
-        height: THUMBNAIL_HEIGHT,
-        s3key: key
-      }]
+      thumbnails: allThumbnails.map(function(thumbnail) {
+        return {
+          width: thumbnail.width,
+          height: thumbnail.height,
+          s3key: thumbnail.forMake(mt.url).key
+        };
+      })
     }, function(err) {
       if (err) return cb(err);
-      return cb(null, {status: 302, url: S3_WEBSITE + key});
+      return cb(null, {status: 302, url: S3_WEBSITE + mt.key});
     });
+  });
+}
+
+function lazyGetScreenshot(mt, req, res, next) {
+  redisCache.get({
+    key: mt.key,
+    lockKey: mt.lockKey,
+    cache: function(_, cb) {
+      var s3url = S3_WEBSITE + mt.key;
+
+      request.head(s3url, function(err, s3res) {
+        if (err) return cb(err);
+        if (s3res.statusCode == 200)
+          return cb(null, {status: 302, url: s3url});
+
+        cacheScreenshot({
+          wait: DEFAULT_WAIT,
+          makeThumbnail: mt
+        }, cb);
+      });
+    },
+    done: function(err, info) {
+      if (err) return next(err);
+      if (info.status == 404) return next();
+      if (info.status == 302)
+        return res.redirect(info.url);
+      return next(new Error("invalid status: " + info.status));
+    }
+  });
+}
+
+function regenerateScreenshot(mt, req, res, next) {
+  var wait = req.body.wait ? EXTENDED_WAIT : DEFAULT_WAIT;
+
+  redisCache.lockAndSet({
+    key: mt.key,
+    lockKey: mt.lockKey,
+    cache: function(_, cb) {
+      cacheScreenshot({
+        wait: wait,
+        makeThumbnail: mt
+      }, cb);
+    },
+    done: function(err, info) {
+      if (err) return next(err);
+      if (info.status != 302)
+        return res.send(400, {error: info.reason});
+      return res.send({screenshot: info.url});
+    }
   });
 }
 
@@ -87,54 +142,18 @@ app.get('/js/bundle.js', function(req, res, next) {
   res.type('text/javascript').send(bundlejs);
 });
 
-app.post('/', function(req, res, next) {
-  var url = makes.validateAndNormalizeUrl(req.body.url);
-  var wait = req.body.wait ? EXTENDED_WAIT : DEFAULT_WAIT;
-  var key;
-
-  if (!url)
-    return res.send(400, {error: 'URL must be a Webmaker make.'});
-
-  key = keys.fromMakeUrl(url);
-
-  redisCache.lockAndSet({
-    key: key,
-    cache: cacheScreenshot.bind(null, wait),
-    done: function(err, info) {
-      if (err) return next(err);
-      if (info.status != 302)
-        return res.send(400, {error: info.reason});
-      return res.send({screenshot: info.url});
-    }
-  });
-});
-
 app.use(function(req, res, next) {
-  var key = req.url.slice(1);
-  if (!(req.method == 'GET' && keys.isWellFormed(key)))
-    return next();
+  var mt = screenshotConfig.makeThumbnailFromPath(req.url);
 
-  redisCache.get({
-    key: key,
-    cache: function(key, cb) {
-      var s3url = S3_WEBSITE + key;
+  if (!mt) return next();
 
-      request.head(s3url, function(err, s3res) {
-        if (err) return cb(err);
-        if (s3res.statusCode == 200)
-          return cb(null, {status: 302, url: s3url});
+  if (req.method == 'GET') {
+    return lazyGetScreenshot(mt, req, res, next);
+  } else if (req.method == 'POST') {
+    return regenerateScreenshot(mt, req, res, next);
+  }
 
-        cacheScreenshot(DEFAULT_WAIT, key, cb);
-      });
-    },
-    done: function(err, info) {
-      if (err) return next(err);
-      if (info.status == 404) return next();
-      if (info.status == 302)
-        return res.redirect(info.url);
-      return next(new Error("invalid status: " + info.status));
-    }
-  });
+  next();
 });
 
 app.use(express.static(__dirname + '/static'));

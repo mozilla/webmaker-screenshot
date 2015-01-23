@@ -3,6 +3,8 @@ var _ = require('underscore');
 var makes = require('./makes');
 var keys = require('./keys');
 
+var DEFAULT_OPTIONS = require('./screenshot-config.json');
+
 function splitAtFirstSlash(str) {
   var index = str.indexOf('/');
   if (index == -1) return ['', str];
@@ -10,6 +12,7 @@ function splitAtFirstSlash(str) {
 }
 
 function ScreenshotConfig(options) {
+  options = options || DEFAULT_OPTIONS;
   if (!options.viewports.length)
     throw new Error("Configs must have at least one viewport");
   this.viewports = options.viewports.map(function(viewport) {
@@ -85,6 +88,8 @@ Thumbnail.prototype = {
 };
 
 function MakeThumbnail(thumbnail, url) {
+  this.thumbnail = thumbnail;
+  this.url = url;
   this.key = thumbnail.viewport.slug + '/' +
              thumbnail.slug + '/' +
              keys.fromMakeUrl(url);

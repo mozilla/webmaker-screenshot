@@ -1,0 +1,21 @@
+{
+  "viewports": [
+    {
+      "slug": "desktop",
+      "width": 800,
+      "height": 600,
+      "thumbnails": [
+        {
+          "slug": "small",
+          "width": 320,
+          "height": 240
+        },
+        {
+          "slug": "large",
+          "width": 512,
+          "height": 384
+        }
+      ]
+    }
+  ]
+}
