@@ -16,6 +16,18 @@
           "height": 384
         }
       ]
+    },
+    {
+      "slug": "mobile",
+      "width": 320,
+      "height": 480,
+      "thumbnails": [
+        {
+          "slug": "small",
+          "width": 320,
+          "height": 480
+        }
+      ]
     }
   ]
 }
