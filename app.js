@@ -27,6 +27,7 @@ app.get('/js/bundle.js', function(req, res, next) {
   if (!bundlejs || DEBUG) {
     var b = browserify();
     b.ignore('request');
+    b.require('./screenshot-config');
     b.require('./keys');
     b.require('./makes');
     b.bundle(function(err, buf) {

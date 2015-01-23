@@ -4,52 +4,28 @@
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,700" rel="stylesheet">
 <link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 <link rel="stylesheet" href="/css/makerstrap.min.css">
-<style>
-div[data-phase] {
-  display: none;
+<title>Webmaker Screenshot</title>
+<div id="app"></div>
+<script src="/js/bundle.js"></script>
+<script src="/vendor/react/build/react.js"></script>
+<script src="/vendor/react/build/JSXTransformer.js"></script>
+<script src="/js/app.jsx" type="text/jsx"></script>
+<script type="text/jsx">
+var ScreenshotConfig = require('./screenshot-config');
+var screenshotConfig = new ScreenshotConfig();
+
+function changeURL(url) {
+  window.location.hash = '#' + encodeURIComponent(url);
 }
 
-body.start div[data-phase=start],
-body.progress div[data-phase=progress],
-body.error div[data-phase=error],
-body.end div[data-phase=end] {
-  display: block;
+function render() {
+  var url = window.location.hash.slice(1);
+  React.render(
+    <App config={screenshotConfig} url={url} onSubmitURL={changeURL}/>,
+    document.getElementById("app")
+  );
 }
-</style>
-<title>Webmaker Screenshot</title>
-<body class="start">
-<div class="container">
-  <h1>Webmaker Screenshot</h1>
-  <div data-phase="start">
-    <p>Paste the URL of a <a href="https://webmaker.org/">Webmaker</a> make below and we'll give you a screenshot of it, courtesy of <a href="http://blitline.com/">Blitline</a>.</p>
-    <form role="form">
-      <div class="form-group">
-        <label class="sr-only" for="url">URL</label>
-        <input class="form-control" id="url" type="text" name="url" placeholder="https://">
-      </div>
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" name="wait"> Wait a few extra seconds for JavaScript to load before taking the screenshot
-        </label>
-      </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-    <br>
-    <p>For more information about this tool, please see its <a href="http://github.com/toolness/webmaker-screenshot">Github Repository</a>.</p>
-  </div>
-  <div data-phase="progress">
-    <p>Taking screenshot&hellip; <img src="/img/throbber.svg"></p>
-  </div>
-  <div data-phase="error">
-    <p>An error occurred!</p>
-    <pre id="error-holder"></pre>
-    <p>Reload this page to retry.</p>
-  </div>
-  <div data-phase="end">
-    <p>Here is the screenshot for your make.</p>
-    <div id="screenshot-holder"></div>
-    <p>To take another screenshot, reload this page.</p>
-  </div>
-</div>
-</body>
-<script src="/js/main.js"></script>
+
+window.addEventListener('hashchange', render, false);
+render();
+</script>
