@@ -37,6 +37,12 @@ RedisCache.prototype = {
   _getInfoKey: function(baseKey) {
     return this.prefix + "info_" + baseKey
   },
+  // This relatively simplistic locking mechanism doesn't have 
+  // the safety property of mutual exclusion when there are
+  // multiple redis instances in play, but for our purposes
+  // that's ok. For more information, see:
+  //
+  //   http://redis.io/topics/distlock
   lockAndSet: function(options) {
     options = _.defaults(options || {}, {
       retry: this.lockAndSet
@@ -97,6 +103,11 @@ RedisCache.prototype = {
         }
         return doneCb(null, info);
       } else {
+        // There is an irritatingly small chance that another
+        // job may set infoKey and release the lock before
+        // the following call executes, but for our purposes that's ok
+        // since it will just mean running an unnecessary additional
+        // re-caching.
         return self.lockAndSet(_.extend({}, options, {
           retry: self.get
         }));
