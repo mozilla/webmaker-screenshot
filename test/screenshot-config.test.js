@@ -39,6 +39,37 @@ describe("ScreenshotConfig", function() {
     should.not.exist(config.viewport('blah'));
   });
 
+  describe("makeThumbnailFromPath()", function() {
+    var make = config.makeThumbnailFromPath.bind(config);
+
+    it("works for /:makepath", function() {
+      make('/u.makes.org/blah')
+        .key.should.eql('desktop/small/u.makes.org/blah');
+    });
+
+    it("works for /:viewport/:makepath", function() {
+      make('/desktop/u.makes.org/blah')
+        .key.should.eql('desktop/small/u.makes.org/blah');
+    });
+
+    it("works for /:viewport/:thumbnail/:makepath", function() {
+      make('/desktop/small/u.makes.org/blah')
+        .key.should.eql('desktop/small/u.makes.org/blah');
+    });
+
+    it("returns null when :viewport is invalid", function() {
+      should.not.exist(make('/invalid/u.makes.org/blah'));
+    });
+
+    it("returns null when :thumbnail is invalid", function() {
+      should.not.exist(make('/desktop/invalid/u.makes.org/blah'));
+    });
+
+    it("returns null when :makepath is malformed", function() {
+      should.not.exist(make('/blah'));
+    });
+  });
+
   describe("Viewport", function() {
     var viewport = config.viewport('desktop');
 

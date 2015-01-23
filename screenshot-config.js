@@ -3,11 +3,11 @@ var _ = require('underscore');
 var makes = require('./makes');
 var keys = require('./keys');
 
-// requirements
-//
-// * use :viewport/:makepath as the redis lock key
-// * iterate through all viewport and thumbnail URLs for a
-//   given makepath.
+function splitAtFirstSlash(str) {
+  var index = str.indexOf('/');
+  if (index == -1) return ['', str];
+  return [str.slice(0, index), str.slice(index + 1)];
+}
 
 function ScreenshotConfig(options) {
   if (!options.viewports.length)
@@ -19,11 +19,30 @@ function ScreenshotConfig(options) {
 }
 
 ScreenshotConfig.prototype = {
-  fromPath: function(path) {
-    // * given a URL path, parse it into /:viewport/:thumbnail/:makepath
-    //   (and validate it)
-    // * also parse just /:makepath, using default viewport and thumbnail.
-    // * also parse just /:viewport/:makepath, using default thumbnail.
+  makeThumbnailFromPath: function(path) {
+    path = path.slice(1);
+
+    var parts = splitAtFirstSlash(path);
+    var viewport = this.viewport(parts[0]);
+    var thumbnail;
+
+    if (viewport) {
+      path = parts[1];
+      parts = splitAtFirstSlash(path);
+      thumbnail = viewport.thumbnail(parts[0]);
+      if (thumbnail)
+        path = parts[1];
+    }
+
+    if (!viewport)
+      viewport = this.defaultViewport;
+    if (!thumbnail)
+      thumbnail = viewport.defaultThumbnail;
+
+    if (keys.isWellFormed(path))
+      return thumbnail.forMake('https://' + path);
+
+    return null;
   },
   viewport: function(slug) {
     return _.findWhere(this.viewports, {slug: slug});
