@@ -24,84 +24,19 @@
   <h1>Manual Tests for Webmaker Screenshot</h1>
   <ol>
     <li>
-      <p>Create a new <a href="https://webmaker.org/">Webmaker</a> make and paste it into the <strong>Screenshot Displayer Tool</strong> below.</p>
+      <p>Create a new <a href="https://webmaker.org/">Webmaker</a> make and submit it into the form on the <a href="/" target="_blank">Webmaker Screenshot</a> page.</p>
     </li>
     <li>
-      <p>Click the <strong>Show Screenshots</strong> button. After a bit of time, screenshots of your make should be displayed. (Some or all of these screenshots will look the same, and that's ok!)</p>
+      <p>After a bit of time, screenshots of your make should be displayed.</p>
     </li>
     <li>
-      <p>Make a trivial modification to your make. Click the 
-        <strong>Show Screenshots</strong> button; the change should
-        <em>not</em> be reflected in the screenshots.</p>
+      <p>Make a trivial modification to your make. Reload the Webmaker Screenshot page; the change should
+      <em>not</em> be reflected in the screenshots.</p>
     </li>
     <li>
-      <p>Use the <a href="/" target="_blank">Webmaker Screenshot</a> form to regenerate the screenshot for your make. Then come back here; clicking <strong>Show Screenshots</strong> should now show the updated screenshots for your make.</p>
+      <p>Click one of the "regenerate screenshots" buttons on the Webmaker Screenshot page; the related screenshots should now
+      show the changes you made earlier.</p>
     </li>
   </ol>
-  <h2>Screenshot Displayer Tool</h2>
-  <form role="form" id="screenshot-displayer">
-    <div class="form-group">
-      <label class="sr-only" for="url">URL</label>
-      <input class="form-control" id="url" type="url" name="url" placeholder="https://" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Show Screenshots</button>
-    <div id="screenshots">
-    </div>
-  </form>
-  <div id="templates" style="display: none">
-    <img class="screenshot loading" src="/img/throbber.svg">
-  </div>
 </div>
 </body>
-<script src="/js/bundle.js"></script>
-<script>
-var NUM_SIMULTANEOUS_REQUESTS = 3;
-var MIN_LOAD_TIME = 1500;
-
-var keys = require('./keys');
-var makes = require('./makes');
-var displayerForm = document.getElementById('screenshot-displayer');
-var screenshots = document.getElementById('screenshots');
-
-function createScreenshot(key, parent) {
-  var url = '/' + key + '?bust=' + Math.random();
-  var placeholder = document.querySelector('#templates .screenshot');
-  var img = document.createElement('img');
-  var loaded = false;
-  var minTimeElapsed = false;
-
-  function onDone() {
-    if (loaded && minTimeElapsed)
-      parent.replaceChild(img, placeholder);
-  }
-
-  placeholder = placeholder.cloneNode(true);
-  parent.appendChild(placeholder);
-  img.setAttribute('src', url);
-  img.setAttribute('class', 'screenshot');
-  img.onload = function() {
-    loaded = true;
-    onDone();
-  };
-  setTimeout(function() {
-    minTimeElapsed = true;
-    onDone();
-  }, MIN_LOAD_TIME);
-}
-
-displayerForm.addEventListener('submit', function(e) {
-  e.preventDefault();
-  var url = document.getElementById('url').value;
-
-  url = makes.validateAndNormalizeUrl(url);
-  if (!url)
-    return alert("URL does not appear to be a Webmaker make.");
-
-  var key = keys.fromMakeUrl(url);
-
-  screenshots.innerHTML = '';
-
-  for (var i = 0; i < NUM_SIMULTANEOUS_REQUESTS; i++)
-    createScreenshot(key, screenshots);
-});
-</script>
