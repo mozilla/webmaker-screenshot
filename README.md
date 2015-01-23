@@ -78,7 +78,7 @@ you can define `REDIS_URL` to point at it. Use the form
 `REDISTOGO_URL` is a synonym for `REDIS_URL`, to make deployment on
 Heroku easier.
 
-If 'DEBUG' is defined in the environment (even as an empty string),
+If `DEBUG` is defined in the environment (even as an empty string),
 then some assets will be always be regenerated on-the-fly, which
 is useful for debugging.
 
