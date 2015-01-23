@@ -55,8 +55,7 @@ Then the client will be redirected to the screenshot's location on S3.
 
 If a screenshot becomes out-of-date, you can forcibly regenerate it using
 the form at the root of the website. Alternatively, issue a `POST`
-request to the root of the website with the `url` parameter set to the
-URL of the make.
+request to the screenshot's URL.
 
 ### Discourse Support
 
