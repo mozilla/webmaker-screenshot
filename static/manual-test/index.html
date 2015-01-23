@@ -53,10 +53,13 @@
   </div>
 </div>
 </body>
+<script src="/js/bundle.js"></script>
 <script>
 var NUM_SIMULTANEOUS_REQUESTS = 3;
 var MIN_LOAD_TIME = 1500;
 
+var keys = require('./keys');
+var makes = require('./makes');
 var displayerForm = document.getElementById('screenshot-displayer');
 var screenshots = document.getElementById('screenshots');
 
@@ -89,10 +92,12 @@ function createScreenshot(key, parent) {
 displayerForm.addEventListener('submit', function(e) {
   e.preventDefault();
   var url = document.getElementById('url').value;
-  var match = url.match(/^https:\/\/(.+)$/);
-  if (!match)
-    return alert("URL must be a https url.");
-  var key = match[1];
+
+  url = makes.validateAndNormalizeUrl(url);
+  if (!url)
+    return alert("URL does not appear to be a Webmaker make.");
+
+  var key = keys.fromMakeUrl(url);
 
   screenshots.innerHTML = '';
 

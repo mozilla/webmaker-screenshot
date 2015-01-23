@@ -1,5 +1,6 @@
 var request = require('request');
 var express = require('express');
+var browserify = require('browserify');
 var bodyParser = require('body-parser');
 
 var RedisCache = require('./redis-cache');
@@ -7,6 +8,7 @@ var keys = require('./keys');
 var makes = require('./makes');
 var blitline = require('./blitline');
 
+var DEBUG = 'DEBUG' in process.env;
 var DEFAULT_WAIT = 0;
 var EXTENDED_WAIT = 10000;
 var PORT = process.env.PORT || 3000;
@@ -25,6 +27,7 @@ if (!BLITLINE_APPLICATION_ID)
 if (!S3_BUCKET)
   throw new Error('S3_BUCKET must be defined');
 
+var bundlejs;
 var redisCache = new RedisCache(process.env.REDIS_URL ||
                                 process.env.REDISTOGO_URL);
 var app = express();
@@ -67,6 +70,22 @@ redisCache.client.on('error', function(err) {
 });
 
 app.use(bodyParser.json());
+
+app.get('/js/bundle.js', function(req, res, next) {
+  if (!bundlejs || DEBUG) {
+    var b = browserify();
+    b.ignore('request');
+    b.require('./keys');
+    b.require('./makes');
+    b.bundle(function(err, buf) {
+      if (err) return next(err);
+      bundlejs = buf;
+      next();
+    });
+  } else next();
+}, function(req, res) {
+  res.type('text/javascript').send(bundlejs);
+});
 
 app.post('/', function(req, res, next) {
   var url = makes.validateAndNormalizeUrl(req.body.url);

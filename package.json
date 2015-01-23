@@ -5,6 +5,7 @@
   "dependencies": {
     "body-parser": "~1.2.0",
     "redis": "0.12.1",
+    "browserify": "8.1.1",
     "express": "~4.2.0",
     "request": "2.34.0"
   },
