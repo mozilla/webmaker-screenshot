@@ -29,17 +29,61 @@ var URLForm = React.createClass({
 });
 
 var Thumbnail = React.createClass({
+  getInitialState: function() {
+    return {
+      loadingImage: true,
+      loadedImageSrc: null
+    };
+  },
+  componentDidMount: function() {
+    this.loadImage();
+  },
+  componentDidUpdate: function(prevProps, prevState) {
+    if (prevProps.url != this.props.url) {
+      this.setState({
+        loadingImage: true,
+        loadedImageSrc: null
+      });
+      this.loadImage();
+    }
+  },
+  loadImage: function() {
+    var image = document.createElement('img');
+    image.onload = this.onImageLoad;
+    image.onerror = this.onImageError;
+    image.setAttribute('src', this.getImagePath() + '?bust=' + Date.now());
+  },
+  onImageError: function(e) {
+    if (!this.isMounted()) return;
+    // TODO: Actually make this show some kind of error image,
+    // instead of a broken image.
+    this.setState({
+      loadingImage: false,
+      loadedImageSrc: e.target.getAttribute('src')
+    });
+  },
+  onImageLoad: function(e) {
+    if (!this.isMounted()) return;
+    this.setState({
+      loadingImage: false,
+      loadedImageSrc: e.target.getAttribute('src')
+    });
+  },
   preventChange: function() {
     // Don't do anything; we want the field to be read-only, but
     // using HTML5's readOnly attribute doesn't let the user
     // select the text, which is lame. We're providing this null
     // callback so React doesn't complain.
   },
+  getImagePath: function() {
+    var mt = this.props.config.forMake(this.props.url);
+    return "/" + mt.key;
+  },
   render: function() {
     var thumbnail = this.props.config;
-    var mt = thumbnail.forMake(this.props.url);
-    var imgPath = "/" + mt.key;
+    var imgPath = this.getImagePath();
     var url = '//' + window.location.host + imgPath;
+    var loadingImage = this.state.loadingImage;
 
     return (
       <div className="well">
@@ -50,7 +94,16 @@ var Thumbnail = React.createClass({
 
         <p>
           <a href={imgPath}>
-            <img src={imgPath} width={thumbnail.width} height={thumbnail.height}/>
+            <img style={{
+              boxSizing: 'border-box',
+              mozBoxSizing: 'border-box',
+              webkitBoxSizing: 'border-box',
+              width: thumbnail.width,
+              height: thumbnail.height,
+              border: '1px solid gray',
+              padding: loadingImage ? 100 : 0,
+              opacity: loadingImage ? 0.5 : 1
+            }} src={loadingImage ? "/img/throbber.svg" : this.state.loadedImageSrc}/>
           </a>
         </p>
 
