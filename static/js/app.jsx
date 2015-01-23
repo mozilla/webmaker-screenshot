@@ -39,39 +39,29 @@ var Thumbnail = React.createClass({
     this.loadImage();
   },
   componentDidUpdate: function(prevProps, prevState) {
-    if (prevProps.url != this.props.url) {
-      this.setState({
-        loadingImage: true,
-        loadedImageSrc: null
-      });
+    if (prevProps.url != this.props.url)
       this.loadImage();
-    }
   },
   loadImage: function() {
     var image = document.createElement('img');
-    var info = {
-      url: this.props.url,
-      src: this.getImagePath() + '?bust=' + Date.now()
-    };
-    image.onload = this.onImageLoad.bind(this, info);
-    image.onerror = this.onImageError.bind(this, info);
-    image.setAttribute('src', info.src);
+    var src = this.getImagePath() + '?bust=' + Date.now();
+    this.setState({
+      loadingImage: true,
+      loadedImageSrc: src
+    });
+    image.onload = this.onImageLoad.bind(this, src);
+    image.onerror = this.onImageError.bind(this, src);
+    image.setAttribute('src', src);
   },
-  onImageError: function(info) {
-    if (!this.isMounted() || info.url != this.props.url) return;
+  onImageError: function(src) {
+    if (!this.isMounted() || src != this.state.loadedImageSrc) return;
     // TODO: Actually make this show some kind of error image,
     // instead of a broken image.
-    this.setState({
-      loadingImage: false,
-      loadedImageSrc: info.src
-    });
+    this.setState({loadingImage: false});
   },
-  onImageLoad: function(info) {
-    if (!this.isMounted() || info.url != this.props.url) return;
-    this.setState({
-      loadingImage: false,
-      loadedImageSrc: info.src
-    });
+  onImageLoad: function(src) {
+    if (!this.isMounted() || src != this.state.loadedImageSrc) return;
+    this.setState({loadingImage: false});
   },
   preventChange: function() {
     // Don't do anything; we want the field to be read-only, but
