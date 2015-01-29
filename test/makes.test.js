@@ -26,6 +26,14 @@ describe("makes", function() {
         url: 'http://foo.makes.org/goggles/blah'
       });
     });
+
+    it("should work for mofodev.net makes", function() {
+      from('apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/').should.eql({
+        contentUrl: 'http://apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/',
+        hostnameAndPath: 'apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/',
+        url: 'http://apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/'
+      });
+    });
   });
 
   describe("fromUrl()", function() {
@@ -58,6 +66,22 @@ describe("makes", function() {
         contentUrl: 'http://foo.makes.org/goggles/blah',
         hostnameAndPath: 'foo.makes.org/goggles/blah',
         url: 'http://foo.makes.org/goggles/blah'
+      });
+    });
+
+    it("should accept http-based mofodev.net makes", function() {
+      fromUrl('http://apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/').should.eql({
+        contentUrl: 'http://apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/',
+        hostnameAndPath: 'apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/',
+        url: 'http://apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/'
+      });
+    });
+
+    it("should accept https-based mofodev.net makes", function() {
+      fromUrl('https://apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/').should.eql({
+        contentUrl: 'https://apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/',
+        hostnameAndPath: 'apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/',
+        url: 'https://apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/'
       });
     });
   });

@@ -1,6 +1,7 @@
 var request = require('request');
 var urlParse = require('url').parse;
 
+var MOFODEV_URL_RE = /^https?:\/\/[A-Za-z0-9_\-]+\.mofodev\.net\//;
 var HTTPS_MAKES_URL_RE = /^https:\/\/[A-Za-z0-9_\-]+\.makes\.org\//;
 var GOGGLES_URL_RE = /^http:\/\/[A-Za-z0-9_\-]+\.makes\.org\/goggles\//;
 var ENDS_WITH_UNDERSCORE_RE = /_$/;
@@ -22,6 +23,8 @@ function fromUrl(url) {
       contentUrl += '_';
     }
   } else if (GOGGLES_URL_RE.test(url)) {
+    contentUrl = url;
+  } else if (MOFODEV_URL_RE.test(url)) {
     contentUrl = url;
   }
 
