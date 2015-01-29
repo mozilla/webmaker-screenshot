@@ -1,7 +1,8 @@
 var request = require('request');
 var urlParse = require('url').parse;
 
-var MAKES_URL_RE = /^https:\/\/[A-Za-z0-9_\-]+\.makes\.org\//;
+var HTTPS_MAKES_URL_RE = /^https:\/\/[A-Za-z0-9_\-]+\.makes\.org\//;
+var GOGGLES_URL_RE = /^http:\/\/[A-Za-z0-9_\-]+\.makes\.org\/goggles\//;
 var ENDS_WITH_UNDERSCORE_RE = /_$/;
 
 function hostnameAndPath(url) {
@@ -10,15 +11,21 @@ function hostnameAndPath(url) {
 }
 
 function fromUrl(url) {
-  if (!MAKES_URL_RE.test(url)) return null;    
+  var contentUrl = null;
 
-  var contentUrl = url;
+  if (HTTPS_MAKES_URL_RE.test(url)) {
+    contentUrl = url;
 
-  if (ENDS_WITH_UNDERSCORE_RE.test(url)) {
-    url = url.slice(0, -1);
-  } else {
-    contentUrl += '_';
+    if (ENDS_WITH_UNDERSCORE_RE.test(url)) {
+      url = url.slice(0, -1);
+    } else {
+      contentUrl += '_';
+    }
+  } else if (GOGGLES_URL_RE.test(url)) {
+    contentUrl = url;
   }
+
+  if (!contentUrl) return null;
 
   return {
     url: url,
@@ -28,7 +35,7 @@ function fromUrl(url) {
 }
 
 function fromHostnameAndPath(str) {
-  return fromUrl('https://' + str);
+  return fromUrl('http://' + str) || fromUrl('https://' + str);
 }
 
 function validateAndNormalizeUrl(url) {

@@ -18,6 +18,14 @@ describe("makes", function() {
         url: 'https://foo.makes.org/blah'
       });
     });
+
+    it("should work for goggles makes", function() {
+      from('foo.makes.org/goggles/blah').should.eql({
+        contentUrl: 'http://foo.makes.org/goggles/blah',
+        hostnameAndPath: 'foo.makes.org/goggles/blah',
+        url: 'http://foo.makes.org/goggles/blah'
+      });
+    });
   });
 
   describe("fromUrl()", function() {
@@ -42,6 +50,14 @@ describe("makes", function() {
         url: 'https://foo.makes.org/',
         contentUrl: 'https://foo.makes.org/_',
         hostnameAndPath: 'foo.makes.org/'
+      });
+    });
+
+    it("should accept goggles makes", function() {
+      fromUrl('http://foo.makes.org/goggles/blah').should.eql({
+        contentUrl: 'http://foo.makes.org/goggles/blah',
+        hostnameAndPath: 'foo.makes.org/goggles/blah',
+        url: 'http://foo.makes.org/goggles/blah'
       });
     });
   });
