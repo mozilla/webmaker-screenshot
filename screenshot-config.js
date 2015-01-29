@@ -43,7 +43,7 @@ ScreenshotConfig.prototype = {
       thumbnail = viewport.defaultThumbnail;
 
     if (keys.isWellFormed(path))
-      return thumbnail.forMake('https://' + path);
+      return thumbnail.forMake(makes.fromHostnameAndPath(path).url);
 
     return null;
   },
