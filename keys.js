@@ -1,20 +1,15 @@
-var urlParse = require('url').parse;
-
-var WELL_FORMED_RE = /^[A-Za-z0-9_\-]+\.makes\.org\/.+$/;
+var makes = require('./makes');
 
 function fromMakeUrl(url) {
-  var parsed = urlParse(url);
-  var key = parsed.hostname + parsed.pathname.slice(0, -1);
-
-  return key;
+  return makes.fromUrl(url).hostnameAndPath;
 }
 
 function toMakeUrl(key) {
-  return 'https://' + key + '_';
+  return makes.fromHostnameAndPath(key).contentUrl;
 }
 
 function isWellFormed(key) {
-  return WELL_FORMED_RE.test(key);
+  return !!makes.fromHostnameAndPath(key);
 }
 
 exports.fromMakeUrl = fromMakeUrl;

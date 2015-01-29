@@ -4,6 +4,48 @@ var nock = require('nock');
 var makes = require('../makes');
 
 describe("makes", function() {
+  describe("fromHostnameAndPath()", function() {
+    var from = makes.fromHostnameAndPath;
+
+    it("should return null if string is invalid", function() {
+      should.not.exist(from('$#%.makes.org/blah'));
+    });
+
+    it("should return object if string is valid", function() {
+      from('foo.makes.org/blah').should.eql({
+        contentUrl: 'https://foo.makes.org/blah_',
+        hostnameAndPath: 'foo.makes.org/blah',
+        url: 'https://foo.makes.org/blah'
+      });
+    });
+  });
+
+  describe("fromUrl()", function() {
+    var fromUrl = makes.fromUrl;
+
+    it("should return null if URL is invalid", function() {
+      should.not.exist(fromUrl('http://foo.makes.org/'));
+      should.not.exist(fromUrl('http://example.org/'));
+      should.not.exist(fromUrl('https://foo$.makes.org/'));
+    });
+
+    it("should remove ending underscore if needed", function() {
+      fromUrl('https://foo.makes.org/_').should.eql({
+        url: 'https://foo.makes.org/',
+        contentUrl: 'https://foo.makes.org/_',
+        hostnameAndPath: 'foo.makes.org/'
+      });
+    });
+
+    it("should add ending underscore if needed", function() {
+      fromUrl('https://foo.makes.org/').should.eql({
+        url: 'https://foo.makes.org/',
+        contentUrl: 'https://foo.makes.org/_',
+        hostnameAndPath: 'foo.makes.org/'
+      });
+    });
+  });
+
   describe("validateAndNormalizeUrl()", function() {
     var validate = makes.validateAndNormalizeUrl;
 
