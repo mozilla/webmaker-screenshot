@@ -4,12 +4,13 @@
   "description": "Take thumbnail screenshots of Webmaker makes.",
   "dependencies": {
     "body-parser": "~1.2.0",
-    "redis": "0.12.1",
-    "underscore": "1.7.0",
     "browserify": "8.1.1",
     "express": "~4.2.0",
+    "messina": "^0.1.2",
+    "morgan": "^1.5.1",
+    "redis": "0.12.1",
     "request": "2.34.0",
-    "morgan": "^1.5.1"
+    "underscore": "1.7.0"
   },
   "devDependencies": {
     "nock": "0.57.0",

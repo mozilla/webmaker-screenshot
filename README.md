@@ -138,6 +138,10 @@ If `DEBUG` is defined in the environment (even as an empty string),
 then some assets will be always be regenerated on-the-fly, which
 is useful for debugging.
 
+If `DEBUG` is *not* defined then [messina][] will be used for logging
+and you may want to set its `GRAYLOG_*` environment variables
+accordingly.
+
 ## Running Tests
 
 To run the test suite, run `npm test`.
@@ -154,3 +158,4 @@ There's also a manual test suite at http://localhost:3000/manual-test/.
   [permission]: http://blitline.com/docs/s3_permissions
   [Discourse]: http://discourse.org/
   [Webmaker Discourse]: http://discourse.webmaker.org/t/webmaker-screenshots/331
+  [messina]: https://www.npmjs.com/package/messina

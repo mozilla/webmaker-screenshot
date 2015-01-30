@@ -1,5 +1,6 @@
 var express = require('express');
 var morgan = require('morgan');
+var messina = require('messina');
 var browserify = require('browserify');
 var bodyParser = require('body-parser');
 
@@ -14,15 +15,24 @@ var bundlejs;
 var screenshotConfig = new ScreenshotConfig();
 var redisCache = new RedisCache(process.env.REDIS_URL ||
                                 process.env.REDISTOGO_URL);
+var log = messina('webmaker-screenshot');
 var app = express();
+
+if (!DEBUG) log.catchFatal();
 
 redisCache.client.on('error', function(err) {
   // Hopefully we've just temporarily lost connection to the
   // server.
-  console.log(err);
+  if (DEBUG)
+    console.log(err.message);
+  else
+    log.error(err.message);
 });
 
-if (DEBUG) app.use(morgan('dev'));
+if (DEBUG)
+  app.use(morgan('dev'));
+else
+  app.use(log.middleware());
 
 app.use(bodyParser.json());
 
@@ -68,6 +78,15 @@ app.use(function(req, res, next) {
 });
 
 app.use(express.static(__dirname + '/static'));
+
+app.use(function(err, req, res, next) {
+  if (DEBUG) {
+    console.log(err.stack);
+    return res.type("text/plain").status(500).send(err.stack);
+  } else
+    log.error(err.stack);
+  res.status(500).send("Internal Server Error");
+});
 
 app.listen(PORT, function() {
   console.log('listening on port ' + PORT);
