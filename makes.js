@@ -41,6 +41,8 @@ function fromHostnameAndPath(str) {
   return fromUrl('http://' + str) || fromUrl('https://' + str);
 }
 
+// TODO: Get rid of this, just have clients use
+// makes.fromUrl() directly.
 function validateAndNormalizeUrl(url) {
   var make = fromUrl(url);
 
