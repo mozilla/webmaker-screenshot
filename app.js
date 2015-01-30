@@ -9,16 +9,18 @@ var ScreenshotConfig = require('./screenshot-config');
 var screenshot = require('./screenshot');
 
 var DEBUG = 'DEBUG' in process.env;
+var IS_TESTING = 'IS_TESTING' in process.env;
 var PORT = process.env.PORT || 3000;
 
 var bundlejs;
 var screenshotConfig = new ScreenshotConfig();
 var redisCache = new RedisCache(process.env.REDIS_URL ||
-                                process.env.REDISTOGO_URL);
+                                process.env.REDISTOGO_URL,
+                                IS_TESTING ? 'TESTING_' : '');
 var log = messina('webmaker-screenshot');
 var app = express();
 
-if (!DEBUG) log.catchFatal();
+if (!DEBUG && !IS_TESTING) log.catchFatal();
 
 redisCache.client.on('error', function(err) {
   // Hopefully we've just temporarily lost connection to the
@@ -31,7 +33,7 @@ redisCache.client.on('error', function(err) {
 
 if (DEBUG)
   app.use(morgan('dev'));
-else
+else if (!IS_TESTING)
   app.use(log.middleware());
 
 app.use(bodyParser.json());
@@ -88,6 +90,10 @@ app.use(function(err, req, res, next) {
   res.status(500).send("Internal Server Error");
 });
 
-app.listen(PORT, function() {
-  console.log('listening on port ' + PORT);
-});
+module.exports = app;
+module.exports.redisCache = redisCache;
+
+if (!module.parent)
+  app.listen(PORT, function() {
+    console.log('listening on port ' + PORT);
+  });
