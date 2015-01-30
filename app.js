@@ -82,15 +82,15 @@ app.use(function(req, res, next) {
 app.use(express.static(__dirname + '/static'));
 
 app.use(function(err, req, res, next) {
+  res.type("text/plain").status(500);
   if (DEBUG) {
     console.log(err.stack);
-    return res.type("text/plain").status(500).send(err.stack);
+    return res.send(err.stack);
   } else if (IS_TESTING) {
-    return res.type("text/plain").status(500).send(err.message);
-  } else {
-    log.error(err.stack);
+    return res.send(err.message);
   }
-  res.status(500).send("Internal Server Error");
+  log.error(err.stack);
+  res.send("Internal Server Error");
 });
 
 module.exports = app;
