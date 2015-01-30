@@ -7,6 +7,7 @@ process.env.BLITLINE_APPLICATION_ID = "FAKE";
 process.env.S3_BUCKET = "FAKE";
 
 var app = require('../app');
+var screenshot = require('../screenshot');
 
 describe("app", function() {
   beforeEach(function(done) {
@@ -38,9 +39,45 @@ describe("app", function() {
       .end(done);    
   });
 
-  describe("/:viewport/:thumbnail/:key", function() {
-    it("TODO: Add more tests here!", function() {
+  describe("thumbnail endpoints", function() {
+    var verifyIsHtml, blitlineScreenshot;
 
+    screenshot.configureForTesting({
+      makes: {verifyIsHtml: function(url, cb) {
+        process.nextTick(verifyIsHtml.bind(null, url, cb));
+      }},
+      blitline: {screenshot: function(options, cb) {
+        process.nextTick(blitlineScreenshot.bind(null, options, cb));
+      }}
+    });
+
+    beforeEach(function() {
+      verifyIsHtml = null;
+      blitlineScreenshot = null;
+    });
+
+    it("return 404 for nonexistent makes", function(done) {
+      verifyIsHtml = function(url, cb) {
+        url.should.eql('https://t.makes.org/blah_');
+        cb(null, false);
+      };
+
+      request(app)
+        .get('/desktop/large/t.makes.org/blah')
+        .expect(404)
+        .end(done);
+    });
+
+    it("propagate errors when looking up makes", function(done) {
+      verifyIsHtml = function(url, cb) {
+        cb(new Error("blah"));
+      };
+
+      request(app)
+        .get('/desktop/large/t.makes.org/blah')
+        .expect(500)
+        .expect("blah")
+        .end(done);
     });
   });
 

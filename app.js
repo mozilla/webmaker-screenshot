@@ -85,8 +85,11 @@ app.use(function(err, req, res, next) {
   if (DEBUG) {
     console.log(err.stack);
     return res.type("text/plain").status(500).send(err.stack);
-  } else
+  } else if (IS_TESTING) {
+    return res.type("text/plain").status(500).send(err.message);
+  } else {
     log.error(err.stack);
+  }
   res.status(500).send("Internal Server Error");
 });
 

@@ -101,3 +101,8 @@ exports.regenerate = function(redisCache, mt, req, res, next) {
     }
   });
 };
+
+exports.configureForTesting = function(options) {
+  makes = options.makes;
+  blitline = options.blitline;
+};
