@@ -35,29 +35,76 @@ node app.js
 
 At this point, you can visit http://localhost:3000/.
 
-## Usage
+## API
 
-Given a make at:
+All POST endpoints take JSON-encoded bodies.
+
+### Terminology
+
+* A **viewport** represents the dimensions of the display area
+  that a webpage is rendered into. Examples include desktop
+  and mobile.
+
+* A **thumbnail** represents a screenshot of a webpage on a
+  particular viewport, usually scaled down to a specific
+  resolution.
+
+* The **default viewport** is defined to be the first viewport
+  listed in `screenshot-config.json`.
+
+* The **default thumbnail** for a viewport is defined to be the
+  first thumbnail listed for a viewport in `screenshot-config.json`.
+
+### URL Parameters
+
+* `:viewport` is a viewport slug as defined in
+  `screenshot-config.json`.
+
+* `:thumbnail` is a thumbnail slug for `:viewport` as defined in
+  `screenshot-config.json`.
+
+* `:key` is the hostname of the make followed by its path. Currently,
+  makes can be hosted on a subdomain of makes.org or mofodev.net.
+
+### Methods
+
+#### `GET /:viewport/:thumbnail/:key`
+
+Returns an HTTP redirect to a thumbnail of a Webmaker make for a
+particular viewport, generating it on-the-fly if needed.
+
+So, for example, given a make at:
 
     https://toolness.makes.org/thimble/LTcwNzI2NDUxMg==/example
 
-The screenshot can be found at:
+The `large` thumbnail of the `desktop` viewport can be found at:
 
-    http://localhost:3000/toolness.makes.org/thimble/LTcwNzI2NDUxMg==/example
+```
+/desktop/large/toolness.makes.org/thimble/LTcwNzI2NDUxMg==/example
+```
 
-In other words, just remove the `https://` at the beginning of the make and
-add it to the root of the web service.
+#### `GET /:viewport/:key`
 
-If the screenshot doesn't already exist, it will be created on-the-fly.
-Then the client will be redirected to the screenshot's location on S3.
+Returns an HTTP redirect to the default thumbnail a Webmaker make
+on a particular viewport, generating it on-the-fly if needed.
 
-### Regenerating Screenshots
+#### `GET /:key`
 
-If a screenshot becomes out-of-date, you can forcibly regenerate it using
-the form at the root of the website. Alternatively, issue a `POST`
-request to the screenshot's URL.
+Returns an HTTP redirect to the default thumbnail of a Webmaker make
+on the default viewport, generating it on-the-fly if needed.
 
-### Discourse Support
+#### `POST /:viewport/:key`
+
+Regenerates all thumbnails of a make for a particular viewport.
+
+Body parameters:
+
+* `wait` - If set to `true`, the screenshotting service will wait
+  for several seconds before taking the screenshot. This is useful
+  for pages that need extra time after the `load` event is fired
+  to put themselves together. Defaults to `false`.
+
+## Discourse Support
 
 You can use `contrib/discourse-onebox.js` as a basis for automatically
 embedding screenshots of Webmaker makes in a [Discourse][] forum.
