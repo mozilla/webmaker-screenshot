@@ -104,6 +104,16 @@ Body parameters:
   for pages that need extra time after the `load` event is fired
   to put themselves together. Defaults to `false`.
 
+#### `GET /healthcheck`
+
+Returns HTTP 200 if the server is OK, 500 if something is wrong.
+
+Regardless, this endpoint always returns a JSON response with
+the following keys:
+
+* `redis` is a boolean indicating whether the server is currently
+  connected to redis.
+
 ## Discourse Support
 
 You can use `contrib/discourse-onebox.js` as a basis for automatically
