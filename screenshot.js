@@ -1,3 +1,4 @@
+var urlParse = require('url').parse;
 var request = require('request');
 
 var makes = require('./makes');
@@ -69,10 +70,12 @@ exports.lazyGet = function(redisCache, mt, req, res, next) {
       });
     },
     done: function(err, info) {
+      var maybeCacheBust = urlParse(req.originalUrl).search || '';
+
       if (err) return next(err);
       if (info.status == 404) return next();
       if (info.status == 302)
-        return res.redirect(info.url);
+        return res.redirect(info.url + maybeCacheBust);
       return next(new Error("invalid status: " + info.status));
     }
   });
