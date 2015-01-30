@@ -1,4 +1,5 @@
 var express = require('express');
+var morgan = require('morgan');
 var browserify = require('browserify');
 var bodyParser = require('body-parser');
 
@@ -20,6 +21,8 @@ redisCache.client.on('error', function(err) {
   // server.
   console.log(err);
 });
+
+if (DEBUG) app.use(morgan('dev'));
 
 app.use(bodyParser.json());
 
