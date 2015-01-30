@@ -26,6 +26,16 @@ if (DEBUG) app.use(morgan('dev'));
 
 app.use(bodyParser.json());
 
+app.get('/healthcheck', function(req, res, next) {
+  if (!redisCache.client.connected)
+    return res.status(500).send({
+      redis: false
+    });
+  return res.send({
+    redis: true
+  });
+});
+
 app.get('/js/bundle.js', function(req, res, next) {
   if (!bundlejs || DEBUG) {
     var b = browserify();
