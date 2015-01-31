@@ -1,4 +1,5 @@
 var urlParse = require("url").parse;
+var assert = require("assert");
 var _ = require('underscore');
 var redis = require('redis');
 
@@ -58,8 +59,9 @@ RedisCache.prototype = {
     var lockToken = Math.random().toString();
     var lockKey = this.prefix + "lock_" + baseLockKey;
 
-    if (typeof(retryCb) != 'function')
-      throw new Error('retry is not a function');
+    assert.equal(typeof(retryCb), 'function');
+    assert.equal(typeof(baseKey), 'string');
+    assert.equal(typeof(baseLockKey), 'string');
 
     self.client.set([
       lockKey, lockToken, "NX", "EX",
@@ -93,6 +95,8 @@ RedisCache.prototype = {
     var baseKey = options.key;
     var doneCb = options.done;
     var infoKey = self._getInfoKey(baseKey);
+
+    assert.equal(typeof(baseKey), 'string');
 
     self.client.get(infoKey, function(err, info) {
       if (err) return doneCb(err);
