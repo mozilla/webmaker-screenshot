@@ -150,6 +150,26 @@ describe("app", function() {
         .expect(302)
         .end(done);
     });
+
+    it("propagates blitline errors", function(done) {
+      verifyIsHtml = function(url, cb) {
+        cb(null, true);
+      };
+
+      blitlineScreenshot = function(options, cb) {
+        cb(new Error("darn"));
+      };
+
+      s3 = nock('https://s3.amazonaws.com')
+        .head('/FAKES3/desktop/large/t.makes.org/blah')
+        .reply(404);
+
+      request(app)
+        .get('/desktop/large/t.makes.org/blah')
+        .expect(500)
+        .expect("darn")
+        .end(done);
+    });
   });
 
   it("should generate /js/bundle.js", function(done) {
