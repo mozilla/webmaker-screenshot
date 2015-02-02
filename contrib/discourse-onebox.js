@@ -6,6 +6,7 @@
 // Thanks to https://gist.github.com/leonardteo/8976640 for this pattern!
 var makes = require('../makes');
 var urlParse = require('url').parse;
+var screenshotConfig = require('../screenshot-config.json');
 
 function getBaseScreenshotURL() {
   var findMyScript = function() {
@@ -21,6 +22,7 @@ function getBaseScreenshotURL() {
   return parsed.protocol + '//' + parsed.host + '/';
 }
 
+var DEFAULT_THUMBNAIL = screenshotConfig.viewports[0].thumbnails[0];
 var BASE_SCREENSHOT_URL = getBaseScreenshotURL();
 var MAKEAPI_URL = 'https://makeapi.webmaker.org/api/20130724/make/search';
 
@@ -67,6 +69,8 @@ Discourse.PostView.reopen({
 
       var img = document.createElement('img');
       img.setAttribute('src', BASE_SCREENSHOT_URL + makeInfo.hostnameAndPath);
+      img.setAttribute('width', DEFAULT_THUMBNAIL.width.toString());
+      img.setAttribute('height', DEFAULT_THUMBNAIL.height.toString());
       $('.onebox-result-body', onebox).prepend(img);
 
       // If the link text is just the URL, replace it w/ the domain.
