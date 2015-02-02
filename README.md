@@ -116,8 +116,19 @@ the following keys:
 
 ## Discourse Support
 
-You can use `contrib/discourse-onebox.js` as a basis for automatically
-embedding screenshots of Webmaker makes in a [Discourse][] forum.
+The server hosts a client-side script that can automatically
+embed screenshots of Webmaker makes in a [Discourse][] forum.
+
+To enable it, in the Discourse admin panel, go to "Content", then
+"HTML head", and add a script tag to `/js/discourse-onebox.js` 
+relative to the root of the screenshot server.
+
+For instance, if your screenshot server is at
+https://example.org, then you'll want to add the following script  tag:
+
+```html
+<script src="https://example.org/js/discourse-onebox.js"></script>
+```
 
 For an example of this in action, see the [Webmaker Discourse][].
 

@@ -51,9 +51,16 @@ app.get('/healthcheck', function(req, res, next) {
 
 app.get('/js/discourse-onebox.js', function(req, res, next) {
   if (!discoursejs || DEBUG) {
-    discoursejs = require('fs')
-      .readFileSync(__dirname + '/contrib/discourse-onebox.js');
-  }
+    var b = browserify();
+    b.ignore('request');
+    b.add('./contrib/discourse-onebox');
+    b.bundle(function(err, buf) {
+      if (err) return next(err);
+      discoursejs = buf;
+      next();
+    });
+  } else next();
+}, function(req, res) {
   return res.type('text/javascript').send(discoursejs);
 });
 
