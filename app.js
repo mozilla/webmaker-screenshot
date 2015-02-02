@@ -13,6 +13,7 @@ var IS_TESTING = 'IS_TESTING' in process.env;
 var PORT = process.env.PORT || 3000;
 
 var bundlejs;
+var discoursejs;
 var screenshotConfig = new ScreenshotConfig();
 var redisCache = new RedisCache(process.env.REDIS_URL ||
                                 process.env.REDISTOGO_URL,
@@ -46,6 +47,14 @@ app.get('/healthcheck', function(req, res, next) {
   return res.send({
     redis: true
   });
+});
+
+app.get('/js/discourse-onebox.js', function(req, res, next) {
+  if (!discoursejs || DEBUG) {
+    discoursejs = require('fs')
+      .readFileSync(__dirname + '/contrib/discourse-onebox.js');
+  }
+  return res.type('text/javascript').send(discoursejs);
 });
 
 app.get('/js/bundle.js', function(req, res, next) {

@@ -5,17 +5,16 @@
 <link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 <link rel="stylesheet" href="/css/makerstrap.min.css">
 <style>
-.screenshot {
-  -moz-box-sizing: border-box;
-  width: 320px;
-  height: 240px;
-  border: 1px solid gray;
-  margin: 10px;
+/* Simulate Discourse style. */
+.onebox-result {
+  background: lightgray;
+  padding: 10px;
+  border-left: 4px solid darkgray;
 }
 
-.screenshot.loading {
-  padding: 100px;
-  opacity: 0.5;
+.onebox-result-body img {
+  float: left;
+  margin-right: 10px;
 }
 </style>
 <title>Manual Tests for Webmaker Screenshot</title>
@@ -38,5 +37,28 @@
       show the changes you made earlier.</p>
     </li>
   </ol>
+  <h2>Manual Test for Discourse Onebox</h2>
+  <blockquote id="fake-post">
+    <p>Hi, I am a fake Discourse post. Here is a Webmaker link, which should look roughly like a Discourse onebox.</p>
+    <p><a href="https://toolness.makes.org/thimble/hey-french-toast-refactored">https://toolness.makes.org/thimble/hey-french-toast-refactored</a></p>
+    <p>Here is a non-Webmaker link, which should <em>not</em> look like a Discourse onebox.</p>
+    <p><a href="http://mozilla.org/">http://mozilla.org/</a></p>
+  </blockquote>
 </div>
+<script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+<script>
+var Discourse = {
+  PostView: {
+    reopen: function(options) {
+      var post = $('#fake-post');
+      var self = {
+        _super: function() {},
+        $: post.find.bind(post)
+      };
+      options.didInsertElement.call(self)
+    }
+  }
+};
+</script>
+<script src="/js/discourse-onebox.js"></script>
 </body>

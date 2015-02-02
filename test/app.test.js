@@ -228,4 +228,13 @@ describe("app", function() {
       .expect(200)
       .end(done);
   });
+
+  it("should generate /js/discourse-onebox.js", function(done) {
+    request(app)
+      .get('/js/discourse-onebox.js')
+      .expect('Content-Type', 'text/javascript; charset=utf-8')
+      .expect(200)
+      .end(done);
+  });
+
 });
