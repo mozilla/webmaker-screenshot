@@ -1,6 +1,6 @@
 {
   "name": "webmaker-screenshot",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Take thumbnail screenshots of Webmaker makes.",
   "dependencies": {
     "body-parser": "~1.2.0",
