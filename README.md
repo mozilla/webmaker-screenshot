@@ -89,6 +89,12 @@ The `large` thumbnail of the `desktop` viewport can be found at:
 /desktop/large/toolness.makes.org/thimble/LTcwNzI2NDUxMg==/example
 ```
 
+Note that if the request's `Accept` header is set to
+`application/json`, this endpoint will *not* return an HTTP
+redirect; instead, it will return a 200 JSON response with a
+single property, `screenshot`, whose value is the absolute URL to
+the thumbnail image.
+
 #### `GET /:viewport/:key`
 
 Returns an HTTP redirect to the default thumbnail a Webmaker make

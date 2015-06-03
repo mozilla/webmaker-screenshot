@@ -95,6 +95,25 @@ describe("app", function() {
           .end(done);
       });
 
+      it("returns JSON when Accept header desires it", function(done) {
+        verifyIsHtml = function(url, cb) {
+          cb(null, true);
+        };
+
+        s3 = nock('https://s3.amazonaws.com')
+          .head('/FAKES3/desktop/large/t.makes.org/blah')
+          .reply(200);
+
+        request(app)
+          .get('/desktop/large/t.makes.org/blah')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .expect({screenshot: 'https://s3.amazonaws.com' +
+                               '/FAKES3/desktop/large/t.makes.org/blah'})
+          .end(done);
+      });
+
+      // TODO: Should this test description have '302' instead of '200'?
       it("return 200 for existing thumbnails on S3", function(done) {
         verifyIsHtml = function(url, cb) {
           cb(null, true);
