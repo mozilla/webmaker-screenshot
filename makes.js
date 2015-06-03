@@ -4,10 +4,15 @@ var urlParse = require('url').parse;
 var MOFODEV_URL_RE = /^https?:\/\/[A-Za-z0-9_\-]+\.mofodev\.net\//;
 var HTTPS_MAKES_URL_RE = /^https:\/\/[A-Za-z0-9_\-]+\.makes\.org\//;
 var GOGGLES_URL_RE = /^http:\/\/[A-Za-z0-9_\-]+\.makes\.org\/goggles\//;
+var WEBMAKER_DESKTOP_RE = /^https:\/\/webmaker-desktop-staging\.herokuapp\.com/;
 var ENDS_WITH_UNDERSCORE_RE = /_$/;
 
 function hostnameAndPath(url) {
-  var parsed = urlParse(url);
+  var parsed;
+  if (WEBMAKER_DESKTOP_RE.test(url)) {
+    return 'webmaker-desktop/' + new Buffer(url).toString('base64');
+  }
+  parsed = urlParse(url);
   return parsed.hostname + parsed.pathname;
 }
 
@@ -26,6 +31,8 @@ function fromUrl(url) {
     contentUrl = url;
   } else if (MOFODEV_URL_RE.test(url)) {
     contentUrl = url;
+  } else if (WEBMAKER_DESKTOP_RE.test(url)) {
+    contentUrl = url;
   }
 
   if (!contentUrl) return null;
@@ -38,6 +45,13 @@ function fromUrl(url) {
 }
 
 function fromHostnameAndPath(str) {
+  var base64Match = str.match(/^webmaker-desktop\/(.+)$/);
+  if (base64Match) {
+    // It doesn't seem like Buffer throws an exception if the input is
+    // invalid base64--it just returns an empty string or a unicode '?'--so
+    // we don't need to catch anything.
+    return fromUrl(new Buffer(base64Match[1], 'base64').toString('utf-8'));
+  }
   return fromUrl('http://' + str) || fromUrl('https://' + str);
 }
 

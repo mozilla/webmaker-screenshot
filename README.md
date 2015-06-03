@@ -63,8 +63,14 @@ All POST endpoints take JSON-encoded bodies.
 * `:thumbnail` is a thumbnail slug for `:viewport` as defined in
   `screenshot-config.json`.
 
-* `:key` is the hostname of the make followed by its path. Currently,
-  makes can be hosted on a subdomain of makes.org or mofodev.net.
+* `:key` is either:
+  * the hostname of the make followed by its path. Currently,
+    makes can be hosted on a subdomain of makes.org or mofodev.net.
+  * `webmaker-desktop/:base64data`, where `:base64data` is the
+    base64-encoded URL of the make. This can include hashes
+    and querystring arguments, so long as it is hosted at one
+    of the following webmaker desktop domains:
+    * webmaker-desktop-staging.herokuapp.com
 
 ### Methods
 

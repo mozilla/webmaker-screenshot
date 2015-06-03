@@ -20,8 +20,18 @@ describe("keys", function() {
       .should.eql('foo.makes.org/blah');
   });
 
+  it("fromMakeUrl() should work w/ webmaker desktop URLs", function() {
+    keys.fromMakeUrl('https://webmaker-desktop-staging.herokuapp.com/#/thumbnail?user=1&project=1&page=1')
+      .should.eql('webmaker-desktop/aHR0cHM6Ly93ZWJtYWtlci1kZXNrdG9wLXN0YWdpbmcuaGVyb2t1YXBwLmNvbS8jL3RodW1ibmFpbD91c2VyPTEmcHJvamVjdD0xJnBhZ2U9MQ==');
+  });
+
   it("toMakeUrl() should work", function() {
     keys.toMakeUrl('foo.makes.org/blah')
       .should.eql('https://foo.makes.org/blah_');
+  });
+
+  it("toMakeUrl() should work w/ webmaker desktop keys", function() {
+    keys.toMakeUrl('webmaker-desktop/aHR0cHM6Ly93ZWJtYWtlci1kZXNrdG9wLXN0YWdpbmcuaGVyb2t1YXBwLmNvbS8jL3RodW1ibmFpbD91c2VyPTEmcHJvamVjdD0xJnBhZ2U9MQ==')
+      .should.eql('https://webmaker-desktop-staging.herokuapp.com/#/thumbnail?user=1&project=1&page=1');
   });
 });

@@ -9,6 +9,7 @@ describe("makes", function() {
 
     it("should return null if string is invalid", function() {
       should.not.exist(from('$#%.makes.org/blah'));
+      should.not.exist(from('webmaker-desktop/b'));
     });
 
     it("should return object if string is valid", function() {
@@ -33,6 +34,15 @@ describe("makes", function() {
         hostnameAndPath: 'apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/',
         url: 'http://apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/'
       });
+    });
+
+    it("should work for webmaker desktop makes", function() {
+      from('webmaker-desktop/aHR0cHM6Ly93ZWJtYWtlci1kZXNrdG9wLXN0YWdpbmcuaGVyb2t1YXBwLmNvbS8jL3RodW1ibmFpbD91c2VyPTEmcHJvamVjdD0xJnBhZ2U9MQ==')
+        .should.eql({
+          contentUrl: 'https://webmaker-desktop-staging.herokuapp.com/#/thumbnail?user=1&project=1&page=1',
+          hostnameAndPath: 'webmaker-desktop/aHR0cHM6Ly93ZWJtYWtlci1kZXNrdG9wLXN0YWdpbmcuaGVyb2t1YXBwLmNvbS8jL3RodW1ibmFpbD91c2VyPTEmcHJvamVjdD0xJnBhZ2U9MQ==',
+          url: 'https://webmaker-desktop-staging.herokuapp.com/#/thumbnail?user=1&project=1&page=1'
+        })
     });
   });
 
@@ -83,6 +93,15 @@ describe("makes", function() {
         hostnameAndPath: 'apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/',
         url: 'https://apps.mofodev.net/p/kate/-JfUuVxKSD-qGpACfz2Z/'
       });
+    });
+
+    it("should accept webmaker desktop makes", function() {
+      fromUrl('https://webmaker-desktop-staging.herokuapp.com/#/thumbnail?user=1&project=1&page=1')
+        .should.eql({
+          contentUrl: 'https://webmaker-desktop-staging.herokuapp.com/#/thumbnail?user=1&project=1&page=1',
+          hostnameAndPath: 'webmaker-desktop/aHR0cHM6Ly93ZWJtYWtlci1kZXNrdG9wLXN0YWdpbmcuaGVyb2t1YXBwLmNvbS8jL3RodW1ibmFpbD91c2VyPTEmcHJvamVjdD0xJnBhZ2U9MQ==',
+          url: 'https://webmaker-desktop-staging.herokuapp.com/#/thumbnail?user=1&project=1&page=1'
+        })
     });
   });
 
