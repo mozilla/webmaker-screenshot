@@ -4,6 +4,12 @@ function screenshot(options, cb) {
   var wait = options.wait;
   var viewport = options.viewport;
   var thumbnails = options.thumbnails;
+  var crop = options.crop || {
+    x: 0,
+    y: 0,
+    width: viewport.width,
+    height: viewport.height
+  };
 
   request.post('http://api.blitline.com/job', {
     json: {json: {
@@ -17,12 +23,7 @@ function screenshot(options, cb) {
       },
       functions: [{
         name: "crop",
-        params: {
-          x: 0,
-          y: 0,
-          width: viewport.width,
-          height: viewport.height
-        },
+        params: crop,
         functions: thumbnails.map(function(thumbnail) {
           return {
             name: "resize_to_fit",

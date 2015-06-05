@@ -28,6 +28,24 @@
           "height": 480
         }
       ]
+    },
+    {
+      "slug": "mobile-center-cropped",
+      "width": 320,
+      "height": 440,
+      "crop": {
+        "x": 0,
+        "y": 121,
+        "width": 320,
+        "height": 198
+      },
+      "thumbnails": [
+        {
+          "slug": "small",
+          "width": 320,
+          "height": 198
+        }
+      ]
     }
   ]
 }

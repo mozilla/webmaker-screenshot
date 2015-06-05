@@ -157,6 +157,7 @@ var Viewport = React.createClass({
   },
   render: function() {
     var viewport = this.props.config;
+    var cropInfo;
     var content;
 
     if (this.state.regenerating) {
@@ -185,11 +186,17 @@ var Viewport = React.createClass({
       );
     }
 
+    if (viewport.crop) {
+      cropInfo = (
+        <span>, cropped to {viewport.crop.width}&times;{viewport.crop.height} at ({viewport.crop.x}, {viewport.crop.y})</span>
+      );
+    }
+
     return (
       <div>
         <h2>{viewport.slug}</h2>
         <div style={{marginTop: -10, marginBottom: 10}}>
-          <small><span className="text-muted">{viewport.width}&times;{viewport.height} viewport</span></small>
+          <small><span className="text-muted">{viewport.width}&times;{viewport.height} viewport{cropInfo}</span></small>
         </div>
         {content}
       </div>

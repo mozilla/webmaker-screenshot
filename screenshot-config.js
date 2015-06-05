@@ -60,6 +60,7 @@ function Viewport(config, options) {
   this.slug = options.slug;
   this.width = options.width;
   this.height = options.height;
+  this.crop = options.crop || null;
   this.thumbnails = options.thumbnails.map(function(thumbnail) {
     return new Thumbnail(this, thumbnail);
   }, this);

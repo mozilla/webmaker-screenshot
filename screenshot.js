@@ -37,6 +37,7 @@ function cacheScreenshot(options, cb) {
         width: mt.thumbnail.viewport.width,
         height: mt.thumbnail.viewport.height
       },
+      crop: mt.thumbnail.viewport.crop,
       thumbnails: allThumbnails.map(function(thumbnail) {
         return {
           width: thumbnail.width,

@@ -141,6 +141,7 @@ describe("app", function() {
             "appId": "FAKE",
             "s3bucket": "FAKES3",
             "url": "https://t.makes.org/blah_",
+            "crop": null,
             "thumbnails": [{
               "height": 240,
               "s3key": "desktop/small/t.makes.org/blah",
