@@ -71,6 +71,7 @@ All POST endpoints take JSON-encoded bodies.
     and querystring arguments, so long as it is hosted at one
     of the following webmaker desktop domains:
     * webmaker-desktop-staging.herokuapp.com
+    * beta.webmaker.org
 
 ### Methods
 
