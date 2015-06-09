@@ -7,6 +7,7 @@ var blitline = require('./blitline');
 var DEFAULT_WAIT = 3000;
 var EXTENDED_WAIT = 10000;
 var BLITLINE_APPLICATION_ID = process.env.BLITLINE_APPLICATION_ID;
+var CLOUDFRONT_DISTRIBUTION = process.env.CLOUDFRONT_DISTRIBUTION;
 var S3_BUCKET = process.env.S3_BUCKET;
 var S3_WEBSITE = process.env.S3_WEBSITE ||
                  ('https://s3.amazonaws.com/' + S3_BUCKET + '/');
@@ -15,6 +16,14 @@ if (!BLITLINE_APPLICATION_ID)
   throw new Error('BLITLINE_APPLICATION_ID must be defined');
 if (!S3_BUCKET)
   throw new Error('S3_BUCKET must be defined');
+
+if ( CLOUDFRONT_DISTRIBUTION ) {
+  S3_WEBSITE.replace(/s3\.amazonaws\.com/, CLOUDFRONT_DISTRIBUTION);
+}
+
+function cloudfrontUrl(url) {
+  return url.replace(/s3\.amazonaws\.com/, CLOUDFRONT_DISTRIBUTION);
+}
 
 function cacheScreenshot(options, cb) {
   var wait = options.wait;
@@ -76,6 +85,8 @@ exports.lazyGet = function(redisCache, mt, req, res, next) {
       if (err) return next(err);
       if (info.status == 404) return next();
       if (info.status == 302) {
+        if (CLOUDFRONT_DISTRIBUTION)
+          info.url = cloudfrontUrl(info.url);
         if (req.accepts('html', 'jpeg', 'json') === 'json') {
           return res.send({screenshot: info.url});
         } else {
@@ -103,6 +114,8 @@ exports.regenerate = function(redisCache, mt, req, res, next) {
       if (err) return next(err);
       if (info.status != 302)
         return res.send(400, {error: info.reason});
+      if (CLOUDFRONT_DISTRIBUTION)
+        info.url = cloudfrontUrl(info.url);
       return res.send({screenshot: info.url});
     }
   });
