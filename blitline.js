@@ -51,21 +51,13 @@ function screenshot(options, cb) {
       return cb(new Error('HTTP ' + res.statusCode));
     }
 
-    var longPollUrl = 'http://cache.blitline.com/listen/' +
-                      body.results.job_id;
-    request.get(longPollUrl, function(err, pollRes, pollBody) {
-      if (err) return cb(err);
-
-      if (pollRes.statusCode != 200)
-        return cb(new Error('HTTP ' + pollRes.statusCode + ': ' + pollBody));
-      cb(null, thumbnails.map(function(thumbnail, i) {
-        return {
-          url: body.results.images[i].s3_url,
-          width: thumbnail.width,
-          height: thumbnail.height
-        };
-      }));
-    });
+    cb(null, thumbnails.map(function(thumbnail, i) {
+      return {
+        url: body.results.images[i].s3_url,
+        width: thumbnail.width,
+        height: thumbnail.height
+      };
+    }));
   });
 }
 
