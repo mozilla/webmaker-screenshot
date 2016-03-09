@@ -4,7 +4,7 @@ var urlParse = require('url').parse;
 var MOFODEV_URL_RE = /^https?:\/\/[A-Za-z0-9_\-]+\.mofodev\.net\//;
 var HTTPS_MAKES_URL_RE = /^https:\/\/[A-Za-z0-9_\-]+\.makes\.org\//;
 var GOGGLES_URL_RE = /^http:\/\/[A-Za-z0-9_\-]+\.makes\.org\/goggles\//;
-var WEBMAKER_DESKTOP_RE = /^https:\/\/(webmaker-desktop-staging\.herokuapp\.com|beta\.webmaker\.org)\//;
+var WEBMAKER_DESKTOP_RE = /^https:\/\/(webmaker-desktop-staging\.herokuapp\.com|beta\.webmaker\.org|webmaker\.org)\//;
 var ENDS_WITH_UNDERSCORE_RE = /_$/;
 
 function hostnameAndPath(url) {

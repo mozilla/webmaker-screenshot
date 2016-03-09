@@ -64,7 +64,7 @@ describe("blitline", function() {
                   }
                 }]
               }]
-            }            
+            }
           });
           return {results: {error: 'ignore this'}};
         });
@@ -108,17 +108,10 @@ describe("blitline", function() {
         }
       };
 
-      afterEach(function() {
-        cache.done();
-      });
-
       it("return after successful long polling", function(done) {
         api = nock('http://api.blitline.com')
           .post('/job')
           .reply(200, JOB_REPLY);
-        cache = nock('http://cache.blitline.com')
-          .get('/listen/50')
-          .reply(200);
         screenshot(MIN_OPTIONS, function(err, info) {
           if (err) return done(err);
           info.should.eql([{
@@ -133,12 +126,9 @@ describe("blitline", function() {
       it("report long polling errors", function(done) {
         api = nock('http://api.blitline.com')
           .post('/job')
-          .reply(200, JOB_REPLY);
-        cache = nock('http://cache.blitline.com')
-          .get('/listen/50')
-          .reply(500, 'ack');
+          .reply(500);
         screenshot(MIN_OPTIONS, function(err, info) {
-          err.message.should.eql('HTTP 500: ack');
+          err.message.should.eql('HTTP 500');
           done();
         });
       });
